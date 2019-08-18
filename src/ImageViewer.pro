@@ -10,13 +10,16 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = ImageViewer.exe
 TEMPLATE = app
+CONFIG += c++11
 
 
 SOURCES += main.cpp\
+        imageslistmodel.cpp \
         mainwindow.cpp \
         imageviewer.cpp
 
 HEADERS  += mainwindow.h \
+        imageslistmodel.h \
         imageviewer.h
 
 FORMS    += mainwindow.ui

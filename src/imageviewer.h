@@ -5,38 +5,38 @@
 
 class QImage;
 
-class ImageViewer : public QAbstractScrollArea
-{
-    Q_OBJECT
+class ImageViewer : public QAbstractScrollArea {
+  Q_OBJECT
 public:
-    explicit ImageViewer(QWidget *parent = nullptr);
-    void attachImagePtr(QImage *ptr);
-    void init();
-    QImage *imagePtr();
-
+  explicit ImageViewer(QWidget *parent = nullptr);
+  void AttachImagePtr(QImage *ptr);
+  void Init();
+  QImage *ImagePtr();
+  double GetScale() const { return scf_; }
 
 protected:
-    void paintEvent(QPaintEvent *) override;
-    void resizeEvent(QResizeEvent *) override;
-    void mouseMoveEvent(QMouseEvent *) override;
+  void paintEvent(QPaintEvent *) override;
+  void resizeEvent(QResizeEvent *) override;
+  void mouseMoveEvent(QMouseEvent *) override;
 
 signals:
-    void pixelTrack(int x, int y);
-    
+  void PixelTrack(int x, int y);
+
 public slots:
-    void setXmov(int x);
-    void setYmov(int y);
-    void setScf( double );
+  void SetXmov(int x);
+  void SetYmov(int y);
+  void SetScf(double);
+  void FixWidth();
 
 private:
-    QImage *m_ptrImage;
-    int xmov, ymov;
-    int imgW, cw, ch;
-    int screenW, screenH;
-    double scf;
+  QImage *image_ptr_;
+  int xmov_, ymov_;
+  int img_w_, cw_, ch_;
+  int screen_w_, screen_h_;
+  double scf_;
 
 private:
-    void adjustAll();
+  void AdjustAll();
 };
 
 #endif // IMAGEVIEWER_H
