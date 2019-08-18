@@ -1,96 +1,99 @@
 #include "imageviewer.h"
+#include <QDebug>
 #include <QImage>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
-#include <QMouseEvent>
-#include <QDebug>
 
-ImageViewer::ImageViewer(QWidget *parent) :
-    QAbstractScrollArea(parent)
-{
-    init();
-    connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(setXmov(int)));
-    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(setYmov(int)));
-    viewport()->setMouseTracking(true);
-    viewport()->setCursor(QCursor(Qt::CrossCursor));
+ImageViewer::ImageViewer(QWidget *parent) : QAbstractScrollArea(parent) {
+  Init();
+  connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(SetXmov(int)));
+  connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(SetYmov(int)));
+  viewport()->setMouseTracking(true);
+  viewport()->setCursor(QCursor(Qt::CrossCursor));
 }
 
-void ImageViewer::attachImagePtr(QImage *ptr)
-{
-    m_ptrImage=ptr;
-    adjustAll();
+void ImageViewer::AttachImagePtr(QImage *ptr) {
+  image_ptr_ = ptr;
+  const double s1 = double(viewport()->width()) / image_ptr_->width();
+  const double s2 = double(viewport()->height()) / image_ptr_->height();
+  scf_ = std::min(std::min(s1, s2), 1.0);
+  AdjustAll();
 }
 
-void ImageViewer::init()
-{
-    m_ptrImage=nullptr;
-    scf=1.0;
-    xmov = ymov = 0;
+void ImageViewer::Init() {
+  image_ptr_ = nullptr;
+  scf_ = 1.0;
+  xmov_ = ymov_ = 0;
 }
 
-void ImageViewer::resizeEvent(QResizeEvent *)
-{
-    if (m_ptrImage) adjustAll();
+void ImageViewer::resizeEvent(QResizeEvent *) {
+  if (image_ptr_)
+    AdjustAll();
 }
 
-void ImageViewer::paintEvent(QPaintEvent *)
-{
-    if (!m_ptrImage) return;
-    QPainter p(viewport());
-    p.translate( QPoint(viewport()->width()/2, viewport()->height()/2) );
-    p.drawImage(QRect(-screenW/2,-screenH/2, screenW, screenH), *m_ptrImage, QRect(xmov, ymov, cw, ch));
+void ImageViewer::paintEvent(QPaintEvent *) {
+  if (!image_ptr_)
+    return;
+  QPainter p(viewport());
+  p.translate(QPoint(viewport()->width() / 2, viewport()->height() / 2));
+  p.drawImage(QRect(-screen_w_ / 2, -screen_h_ / 2, screen_w_, screen_h_),
+              *image_ptr_, QRect(xmov_, ymov_, cw_, ch_));
 }
 
-void ImageViewer::mouseMoveEvent(QMouseEvent *e)
-{
-    const QPoint pdPos = viewport()->mapFrom(this, e->pos());
-    const int xx = xmov + (pdPos.x() - viewport()->width()/2 + screenW/2)/scf;
-    const int yy = ymov + (pdPos.y() - viewport()->height()/2 + screenH/2)/scf;
-    emit pixelTrack(xx, yy);
+void ImageViewer::mouseMoveEvent(QMouseEvent *e) {
+  const QPoint pd_pos = viewport()->mapFrom(this, e->pos());
+  const int xx =
+      xmov_ + (pd_pos.x() - viewport()->width() / 2 + screen_w_ / 2) / scf_;
+  const int yy =
+      ymov_ + (pd_pos.y() - viewport()->height() / 2 + screen_h_ / 2) / scf_;
+  emit PixelTrack(xx, yy);
 }
 
+void ImageViewer::AdjustAll() {
+  screen_w_ = viewport()->width();
+  screen_h_ = viewport()->height();
+  cw_ = screen_w_ / scf_ + .5;
+  if (cw_ > image_ptr_->width()) {
+    cw_ = image_ptr_->width();
+    screen_w_ = cw_ * scf_ + .5;
+  }
+  ch_ = screen_h_ / scf_ + .5;
+  if (ch_ > image_ptr_->height()) {
+    ch_ = image_ptr_->height();
+    screen_h_ = ch_ * scf_ + .5;
+  }
+  horizontalScrollBar()->setPageStep(cw_);
+  horizontalScrollBar()->setMaximum(image_ptr_->width() - cw_);
 
-void ImageViewer::adjustAll()
-{
-    screenW = viewport()->width();
-    screenH = viewport()->height();
-    cw = screenW/scf+.5;
-    if (cw > m_ptrImage->width()){
-        cw = m_ptrImage->width();
-        screenW = cw*scf+.5;
-    }
-    ch = screenH/scf+.5;
-    if (ch > m_ptrImage->height()){
-        ch = m_ptrImage->height();
-        screenH = ch*scf+.5;
-    }
-    horizontalScrollBar()->setPageStep(cw);
-    horizontalScrollBar()->setMaximum(m_ptrImage->width()-cw);
+  verticalScrollBar()->setPageStep(ch_);
+  verticalScrollBar()->setMaximum(image_ptr_->height() - ch_);
+  viewport()->update();
+}
 
-    verticalScrollBar()->setPageStep(ch);
-    verticalScrollBar()->setMaximum(m_ptrImage->height()-ch);
+void ImageViewer::FixWidth() {
+  SetScf(double(viewport()->width()) / image_ptr_->width());
+}
+
+void ImageViewer::SetXmov(int x) {
+  if (x != xmov_) {
+    xmov_ = x;
     viewport()->update();
+  }
 }
 
-void ImageViewer::setXmov(int x)
-{
-    xmov = x;
+void ImageViewer::SetYmov(int y) {
+  if (y != ymov_) {
+    ymov_ = y;
     viewport()->update();
+  }
 }
 
-void ImageViewer::setYmov(int y)
-{
-    ymov = y;
-    viewport()->update();
+void ImageViewer::SetScf(const double s) {
+  if (s != scf_) {
+    scf_ = s;
+    AdjustAll();
+  }
 }
 
-void ImageViewer::setScf(const double s)
-{
-    scf = s;
-    adjustAll();
-}
-
-QImage *ImageViewer::imagePtr()
-{
-    return m_ptrImage;
-}
+QImage *ImageViewer::ImagePtr() { return image_ptr_; }
