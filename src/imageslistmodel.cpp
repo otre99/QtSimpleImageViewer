@@ -34,15 +34,14 @@ int ImagesListModel::rowCount(const QModelIndex & /*parent*/) const {
 
 QVariant ImagesListModel::data(const QModelIndex &index, const int role) const {
   if (index.isValid() && role == Qt::DecorationRole) {
-    const QString image_path = GetImagePath(index.row());
+    const int key = index.row();
+    if (pixmap_cache_.contains(key))
+      return *pixmap_cache_[key];
+
+    const QString image_path = GetImagePath(key);
     QImageReader reader(image_path);
     if (reader.canRead()) {
       reader.setScaledSize(QSize(kDisplayIconSize, kDisplayIconSize));
-
-      int key = index.row();
-      if (pixmap_cache_.contains(key))
-        return *pixmap_cache_[key];
-
       pixmap_cache_.insert(key, new QPixmap(QPixmap::fromImage(reader.read())));
       return *pixmap_cache_[key];
     }
