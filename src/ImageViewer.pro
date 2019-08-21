@@ -14,12 +14,16 @@ CONFIG += c++11
 
 
 SOURCES += main.cpp\
+        asyncimageloader.cpp \
         imageslistmodel.cpp \
         mainwindow.cpp \
         imageviewer.cpp
 
 HEADERS  += mainwindow.h \
+        asyncimageloader.h \
         imageslistmodel.h \
         imageviewer.h
 
 FORMS    += mainwindow.ui
+RESOURCES += \
+    resources.qrc

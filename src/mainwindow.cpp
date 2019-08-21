@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QImageReader>
+#include <QScrollBar>
 #include <QSplitter>
 
 namespace {
@@ -28,6 +29,16 @@ MainWindow::MainWindow(QWidget *parent)
   ui_->mainToolBar->addWidget(ui_->tbFull);
   ui_->mainToolBar->setEnabled(false);
   ui_->listView->setModel(&images_list_model_);
+
+  connect(ui_->listView->horizontalScrollBar(), &QScrollBar::sliderPressed,
+          &images_list_model_, &ImagesListModel::ActivateSoftLoading);
+  connect(ui_->listView->horizontalScrollBar(), &QScrollBar::sliderReleased,
+          this, &MainWindow::UpdateView);
+}
+
+void MainWindow::UpdateView() {
+  images_list_model_.DeactivateSoftLoading();
+  ui_->listView->reset();
 }
 
 MainWindow::~MainWindow() { delete ui_; }
