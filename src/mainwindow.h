@@ -29,6 +29,7 @@ private slots:
   void on_listView_clicked(const QModelIndex &index);
   void on_actionNext_triggered();
   void on_actionBack_triggered();
+  void UpdateView();
 
 private:
   Ui::MainWindow *ui_;

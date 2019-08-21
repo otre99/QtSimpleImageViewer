@@ -1,14 +1,21 @@
 #include "imageslistmodel.h"
 #include <QDebug>
 #include <QImageReader>
-#include <QPixmap>
 
 namespace {
 const QStringList img_ext = {"*.jpg", "*.JPG", "*.png", "*.PNG"};
 const int kDisplayIconSize = 64;
+const size_t kMaxImageInCache = (1024 * 1024 * 1024) / (64 * 64 * 4);
+const int kMaxAsyncCalls = 1024;
+
 } // namespace
 
-ImagesListModel::ImagesListModel() = default;
+ImagesListModel::ImagesListModel() {
+  connect(this, &ImagesListModel::LoadImageRequest, &async_image_loader_,
+          &AsyncImageLoader::Enqueue);
+  connect(&async_image_loader_, &AsyncImageLoader::ImageLoaded, this,
+          &ImagesListModel::LoadingFinished);
+}
 
 QString ImagesListModel::GetImagePath(int row) const {
   return image_folder_.filePath(image_names_[row]);
@@ -25,7 +32,14 @@ void ImagesListModel::Init(const QString &folder) {
   image_names_ = image_folder_.entryList(img_ext, QDir::Files);
   endResetModel();
   pixmap_cache_.clear();
-  pixmap_cache_.setMaxCost(1000); // TODO (otre99): avoid  hardcoding!!!!
+  pixmap_cache_.setMaxCost(
+      kMaxImageInCache); // TODO (otre99): avoid  hardcoding!!!!
+
+  QImage loadinIcon(":/icons/icons/loading.png");
+  fake_image_ = QPixmap::fromImage(
+      loadinIcon.scaled(QSize(kDisplayIconSize, kDisplayIconSize)));
+  async_image_loader_.Reset();
+  soft_loading_ = false;
 }
 
 int ImagesListModel::rowCount(const QModelIndex & /*parent*/) const {
@@ -37,14 +51,19 @@ QVariant ImagesListModel::data(const QModelIndex &index, const int role) const {
     const int key = index.row();
     if (pixmap_cache_.contains(key))
       return *pixmap_cache_[key];
-
     const QString image_path = GetImagePath(key);
-    QImageReader reader(image_path);
-    if (reader.canRead()) {
-      reader.setScaledSize(QSize(kDisplayIconSize, kDisplayIconSize));
-      pixmap_cache_.insert(key, new QPixmap(QPixmap::fromImage(reader.read())));
-      return *pixmap_cache_[key];
-    }
+    if (!soft_loading_)
+      emit LoadImageRequest(image_path,
+                            QSize(kDisplayIconSize, kDisplayIconSize), key);
+    return fake_image_;
   }
   return QVariant();
+}
+
+void ImagesListModel::LoadingFinished(QPixmap *pixmap, int row) {
+  if (pixmap) {
+    pixmap_cache_.insert(row, pixmap);
+    QModelIndex tl = index(row);
+    emit dataChanged(tl, tl);
+  }
 }
