@@ -14,8 +14,10 @@ class AsyncImageLoader : public QThread {
   QWaitCondition wait_cond_;
   QStack<std::tuple<QString, QSize, int>> pending_stack_;
   void LoadImage(const QString &path, const QSize &target_size, int row);
+  bool exit_;
 
 public:
+  ~AsyncImageLoader() override;
   explicit AsyncImageLoader(QObject *parent = nullptr);
   void run() override;
   void Reset();
