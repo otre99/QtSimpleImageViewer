@@ -20,9 +20,16 @@ void AsyncImageLoader::Reset() {
     pending_stack_.clear();
     mutex_.unlock();
   } else {
+    exit_ = false;
     pending_stack_.clear();
     start();
   }
+}
+
+AsyncImageLoader::~AsyncImageLoader() {
+  exit_ = true;
+  wait_cond_.wakeAll();
+  wait();
 }
 
 void AsyncImageLoader::LoadImage(const QString &path, const QSize &target_size,
@@ -41,6 +48,8 @@ void AsyncImageLoader::run() {
   QSize target_size;
   int row;
   for (;;) {
+    if (exit_)
+      break;
     mutex_.lock();
     if (!pending_stack_.empty()) {
       std::tie(path, target_size, row) = pending_stack_.pop();
