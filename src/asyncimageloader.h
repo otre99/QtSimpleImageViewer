@@ -22,6 +22,7 @@ public:
   void run() override;
   void Reset();
 
+
 signals:
   void ImageLoaded(QPixmap *pixmap, int row);
 
