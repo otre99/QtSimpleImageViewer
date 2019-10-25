@@ -36,9 +36,14 @@ void ImageViewer::paintEvent(QPaintEvent *) {
   if (!image_ptr_)
     return;
   QPainter p(viewport());
+
+
   p.translate(QPoint(viewport()->width() / 2, viewport()->height() / 2));
   p.drawImage(QRect(-screen_w_ / 2, -screen_h_ / 2, screen_w_, screen_h_),
               *image_ptr_, QRect(xmov_, ymov_, cw_, ch_));
+
+
+
 }
 
 void ImageViewer::mouseMoveEvent(QMouseEvent *e) {

@@ -56,6 +56,8 @@ QVariant ImagesListModel::data(const QModelIndex &index, const int role) const {
       emit LoadImageRequest(image_path,
                             QSize(kDisplayIconSize, kDisplayIconSize), key);
     return fake_image_;
+  } else if (role == Qt::DisplayRole){
+      return QString::number(index.row());
   }
   return QVariant();
 }

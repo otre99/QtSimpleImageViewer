@@ -15,6 +15,7 @@ public:
   QVariant data(const QModelIndex &index,
                 int role = Qt::DisplayRole) const override;
   QString GetImagePath(int row) const;
+  QString GetFileName(int row) const {return image_names_[row];  }
 
 signals:
   void LoadImageRequest(const QString &, const QSize &, int) const;

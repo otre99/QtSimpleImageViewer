@@ -34,6 +34,10 @@ MainWindow::MainWindow(QWidget *parent)
           &images_list_model_, &ImagesListModel::ActivateSoftLoading);
   connect(ui_->listView->horizontalScrollBar(), &QScrollBar::sliderReleased,
           this, &MainWindow::UpdateView);
+
+    lb_disply_img_info_ = new QLabel(this);
+    statusBar()->addPermanentWidget(lb_disply_img_info_);
+    lb_disply_img_info_->setText("name: None");
 }
 
 void MainWindow::UpdateView() {
@@ -98,6 +102,9 @@ void MainWindow::on_listView_doubleClicked(const QModelIndex &index) {}
 
 void MainWindow::on_listView_clicked(const QModelIndex &index) {
   if (index.isValid()) {
+
+
+    lb_disply_img_info_->setText("Name: "+images_list_model_.GetFileName(index.row()));
     LoadImage(images_list_model_.GetImagePath(index.row()), false);
     current_image_index_ = index.row();
   }
@@ -109,6 +116,7 @@ void MainWindow::on_actionNext_triggered() {
   LoadImage(images_list_model_.GetImagePath(current_image_index_), false);
   QModelIndex index = images_list_model_.index(current_image_index_);
   ui_->listView->setCurrentIndex(index);
+  lb_disply_img_info_->setText("Name: "+images_list_model_.GetFileName(index.row()));
 }
 
 void MainWindow::on_actionBack_triggered() {
@@ -120,4 +128,5 @@ void MainWindow::on_actionBack_triggered() {
   LoadImage(images_list_model_.GetImagePath(current_image_index_), false);
   QModelIndex index = images_list_model_.index(current_image_index_);
   ui_->listView->setCurrentIndex(index);
+  lb_disply_img_info_->setText("Name: "+images_list_model_.GetFileName(index.row()));
 }

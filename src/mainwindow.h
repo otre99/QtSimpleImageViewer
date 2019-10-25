@@ -4,6 +4,7 @@
 #include "imageslistmodel.h"
 #include <QMainWindow>
 #include <QSlider>
+#include <QLabel>
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,7 @@ private:
   ImagesListModel images_list_model_;
   QString last_img_path_;
   int current_image_index_;
+  QLabel *lb_disply_img_info_;
 };
 
 #endif // MAINWINDOW_H
