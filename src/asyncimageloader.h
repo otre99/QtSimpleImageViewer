@@ -2,6 +2,7 @@
 #define ASYNCIMAGELOADER_H
 
 #include <QMutex>
+#include <QSet>
 #include <QSize>
 #include <QStack>
 #include <QThread>
@@ -15,13 +16,13 @@ class AsyncImageLoader : public QThread {
   QStack<std::tuple<QString, QSize, int>> pending_stack_;
   void LoadImage(const QString &path, const QSize &target_size, int row);
   bool exit_;
+  QSet<int> pending_keys_;
 
 public:
   ~AsyncImageLoader() override;
   explicit AsyncImageLoader(QObject *parent = nullptr);
   void run() override;
   void Reset();
-
 
 signals:
   void ImageLoaded(QPixmap *pixmap, int row);

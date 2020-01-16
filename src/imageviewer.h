@@ -16,7 +16,7 @@ public:
 
 protected:
   void paintEvent(QPaintEvent *) override;
-  void resizeEvent(QResizeEvent *) override;
+  void resizeEvent(QResizeEvent *ev) override;
   void mouseMoveEvent(QMouseEvent *) override;
 
 signals:
@@ -37,6 +37,7 @@ private:
 
 private:
   void AdjustAll();
+  void SelectScf();
 };
 
 #endif // IMAGEVIEWER_H

@@ -15,9 +15,7 @@ ImageViewer::ImageViewer(QWidget *parent) : QAbstractScrollArea(parent) {
 
 void ImageViewer::AttachImagePtr(QImage *ptr) {
   image_ptr_ = ptr;
-  const double s1 = double(viewport()->width()) / image_ptr_->width();
-  const double s2 = double(viewport()->height()) / image_ptr_->height();
-  scf_ = std::min(std::min(s1, s2), 1.0);
+  SelectScf();
   AdjustAll();
 }
 
@@ -27,9 +25,19 @@ void ImageViewer::Init() {
   xmov_ = ymov_ = 0;
 }
 
-void ImageViewer::resizeEvent(QResizeEvent *) {
-  if (image_ptr_)
+void ImageViewer::SelectScf() {
+  const double s1 = double(viewport()->width()) / image_ptr_->width();
+  const double s2 = double(viewport()->height()) / image_ptr_->height();
+  scf_ = std::min(std::min(s1, s2), 1.0);
+  if (scf_ == 0.0)
+    scf_ = 1.0;
+}
+
+void ImageViewer::resizeEvent(QResizeEvent *ev) {
+  QAbstractScrollArea::resizeEvent(ev);
+  if (image_ptr_) {
     AdjustAll();
+  }
 }
 
 void ImageViewer::paintEvent(QPaintEvent *) {
@@ -37,13 +45,9 @@ void ImageViewer::paintEvent(QPaintEvent *) {
     return;
   QPainter p(viewport());
 
-
   p.translate(QPoint(viewport()->width() / 2, viewport()->height() / 2));
   p.drawImage(QRect(-screen_w_ / 2, -screen_h_ / 2, screen_w_, screen_h_),
               *image_ptr_, QRect(xmov_, ymov_, cw_, ch_));
-
-
-
 }
 
 void ImageViewer::mouseMoveEvent(QMouseEvent *e) {
@@ -73,6 +77,7 @@ void ImageViewer::AdjustAll() {
 
   verticalScrollBar()->setPageStep(ch_);
   verticalScrollBar()->setMaximum(image_ptr_->height() - ch_);
+
   viewport()->update();
 }
 
