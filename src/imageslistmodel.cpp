@@ -3,7 +3,7 @@
 #include <QImageReader>
 
 namespace {
-const QStringList img_ext = {"*.jpg", "*.JPG", "*.png", "*.PNG"};
+const QStringList img_ext = {"*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.png", "*.PNG"};
 const int kDisplayIconSize = 64;
 const size_t kMaxImageInCache = (256 * 1024 * 1024) / (64 * 64 * 4); // 256 Mb of cache
 

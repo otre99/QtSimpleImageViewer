@@ -18,6 +18,7 @@ protected:
   void paintEvent(QPaintEvent *) override;
   void resizeEvent(QResizeEvent *ev) override;
   void mouseMoveEvent(QMouseEvent *) override;
+  void mousePressEvent(QMouseEvent *) override;
 
 signals:
   void PixelTrack(int x, int y);
@@ -34,6 +35,7 @@ private:
   int img_w_, cw_, ch_;
   int screen_w_, screen_h_;
   double scf_;
+  QPoint last_pt_;
 
 private:
   void AdjustAll();
