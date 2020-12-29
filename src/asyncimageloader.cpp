@@ -15,13 +15,11 @@ void AsyncImageLoader::Enqueue(const QString &path, const QSize &target_size,
     pending_stack_.push({path, target_size, row});
 
     if (pending_stack_.count() > kMaxAsyncCalls) {
-      int key = std::get<2>(pending_stack_.last());
+      int key = std::get<2>(pending_stack_.first());
       pending_keys_.remove(key);
-      pending_stack_.removeLast();
+      pending_stack_.removeFirst();
     }
-
     mutex_.unlock();
-
   } else {
     mutex_.unlock();
     return;

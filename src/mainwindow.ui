@@ -14,78 +14,6 @@
    <string>Simple image viewer</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QSlider" name="scfSlider">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>84</width>
-      <height>15</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="minimum">
-     <number>1</number>
-    </property>
-    <property name="maximum">
-     <number>1000</number>
-    </property>
-    <property name="pageStep">
-     <number>1</number>
-    </property>
-    <property name="value">
-     <number>100</number>
-    </property>
-    <property name="tracking">
-     <bool>true</bool>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="invertedAppearance">
-     <bool>false</bool>
-    </property>
-    <property name="invertedControls">
-     <bool>false</bool>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::NoTicks</enum>
-    </property>
-    <property name="tickInterval">
-     <number>2</number>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="goTo100">
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>0</y>
-      <width>41</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>100%</string>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="tbFull">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>0</y>
-      <width>28</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Full</string>
-    </property>
-   </widget>
    <widget class="QListView" name="listView">
     <property name="geometry">
      <rect>
@@ -95,14 +23,20 @@
       <height>415</height>
      </rect>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="iconSize">
      <size>
-      <width>64</width>
-      <height>64</height>
+      <width>128</width>
+      <height>128</height>
      </size>
     </property>
     <property name="flow">
      <enum>QListView::TopToBottom</enum>
+    </property>
+    <property name="resizeMode">
+     <enum>QListView::Adjust</enum>
     </property>
     <property name="layoutMode">
      <enum>QListView::SinglePass</enum>
@@ -127,7 +61,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>19</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -138,7 +72,17 @@
     <addaction name="actionNext"/>
     <addaction name="actionBack"/>
    </widget>
+   <widget class="QMenu" name="menuZoom">
+    <property name="title">
+     <string>Zoom</string>
+    </property>
+    <addaction name="actionZoom_In"/>
+    <addaction name="actionZoom_Out"/>
+    <addaction name="actionFit_Width"/>
+    <addaction name="actionScale_100"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuZoom"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -152,6 +96,9 @@
   <action name="actionOpen_Image">
    <property name="text">
     <string>Open Image</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionNext">
@@ -168,6 +115,38 @@
    </property>
    <property name="shortcut">
     <string>Left</string>
+   </property>
+  </action>
+  <action name="actionZoom_In">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionZoom_Out">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionFit_Width">
+   <property name="text">
+    <string>Fit Width</string>
+   </property>
+   <property name="shortcut">
+    <string>W</string>
+   </property>
+  </action>
+  <action name="actionScale_100">
+   <property name="text">
+    <string>Scale 100%</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
    </property>
   </action>
  </widget>
