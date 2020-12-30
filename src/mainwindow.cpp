@@ -36,13 +36,19 @@ MainWindow::MainWindow(QWidget *parent)
   lb_disply_img_info_ = new QLabel(this);
   statusBar()->addPermanentWidget(lb_disply_img_info_);
   lb_disply_img_info_->setText("name: None");
+
+  ui_->actionZoom_In->setEnabled(false);
+  ui_->actionZoom_Out->setEnabled(false);
+  ui_->actionFit_Width->setEnabled(false);
+  ui_->actionScale_100->setEnabled(false);
+  ui_->actionNext->setEnabled(false);
+  ui_->actionBack->setEnabled(false);
 }
 
 void MainWindow::UpdateView() {
   images_list_model_.DeactivateSoftLoading();
   ui_->listView->reset();
 }
-
 
 MainWindow::~MainWindow() { delete ui_; }
 
@@ -67,12 +73,19 @@ void MainWindow::LoadImage(const QString &image_path, const bool reload) {
   QImageReader reader(image_path);
   if (reader.canRead()) {
     viewer_->AttachImagePtr(new QImage(image_path));
-    ui_->mainToolBar->setEnabled(true);
     last_img_path_ = image_path;
     if (reload) {
       images_list_model_.Init(image_path);
       current_image_index_ = 0;
     }
+  }
+  if (!ui_->actionZoom_In->isEnabled()) {
+    ui_->actionZoom_In->setEnabled(true);
+    ui_->actionZoom_Out->setEnabled(true);
+    ui_->actionFit_Width->setEnabled(true);
+    ui_->actionScale_100->setEnabled(true);
+    ui_->actionNext->setEnabled(true);
+    ui_->actionBack->setEnabled(true);
   }
 }
 
