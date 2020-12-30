@@ -3,7 +3,7 @@ This is a very simple but fast image viewer. You can associate the program with 
 
 ## How to create the app?
 
-Use QtCreator to open ```src/ImageViewer.pro``` file and them build the program. Tested in Kubuntu 18.04 with QtSDK 5.12.
+Use QtCreator to open ```src/CMakeLists.txt``` file and them build the program, or you can directly use ```SimpleQtImageViewer-x86_64.AppImage```. Tested in Ubuntu 20.04 with QtSDK 5.12.
 
 
 ## Gallery
