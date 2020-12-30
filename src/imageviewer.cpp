@@ -8,8 +8,10 @@
 
 ImageViewer::ImageViewer(QWidget *parent) : QAbstractScrollArea(parent) {
   Init();
-  connect(horizontalScrollBar(), SIGNAL(valueChanged(int)), SLOT(SetXmov(int)));
-  connect(verticalScrollBar(), SIGNAL(valueChanged(int)), SLOT(SetYmov(int)));
+  connect(horizontalScrollBar(), &QScrollBar::sliderMoved, this,
+          &ImageViewer::SetXmov);
+  connect(verticalScrollBar(), &QScrollBar::sliderMoved, this,
+          &ImageViewer::SetYmov);
 
   viewport()->setMouseTracking(true);
   viewport()->setCursor(QCursor(Qt::CrossCursor));
@@ -26,6 +28,7 @@ void ImageViewer::Init() {
   image_ptr_ = nullptr;
   scf_ = 1.0;
   xmov_ = ymov_ = 0;
+  cw_ = ch_ = 0;
   setEnabled(false);
 }
 
@@ -79,9 +82,23 @@ void ImageViewer::mousePressEvent(QMouseEvent *e) {
                 (pd_pos.y() - viewport()->height() / 2 + screen_h_ / 2) / scf_);
 }
 
+void ImageViewer::wheelEvent(QWheelEvent *event) {
+  const QPoint numDegrees = event->angleDelta();
+  if (numDegrees.y() > 0) {
+    SetScf(scf_ * 1.1);
+  } else {
+    SetScf(scf_ / 1.1);
+  }
+  event->accept();
+}
+
 void ImageViewer::AdjustAll() {
   screen_w_ = viewport()->width();
   screen_h_ = viewport()->height();
+
+  const int old_w = cw_;
+  const int old_h = ch_;
+
   cw_ = screen_w_ / scf_ + .5;
   if (cw_ > image_ptr_->width()) {
     cw_ = image_ptr_->width();
@@ -92,11 +109,18 @@ void ImageViewer::AdjustAll() {
     ch_ = image_ptr_->height();
     screen_h_ = ch_ * scf_ + .5;
   }
+
   horizontalScrollBar()->setPageStep(cw_);
   horizontalScrollBar()->setMaximum(image_ptr_->width() - cw_);
+  xmov_ = qMin(qMax(0, xmov_ + (old_w - cw_) / 2),
+               horizontalScrollBar()->maximum());
+  horizontalScrollBar()->setValue(xmov_);
 
   verticalScrollBar()->setPageStep(ch_);
   verticalScrollBar()->setMaximum(image_ptr_->height() - ch_);
+  ymov_ =
+      qMin(qMax(0, ymov_ + (old_h - ch_) / 2), verticalScrollBar()->maximum());
+  verticalScrollBar()->setValue(ymov_);
 
   viewport()->update();
 }

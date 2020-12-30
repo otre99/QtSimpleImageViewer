@@ -19,7 +19,7 @@ class ImageViewer : public QAbstractScrollArea {
   void resizeEvent(QResizeEvent *ev) override;
   void mouseMoveEvent(QMouseEvent *) override;
   void mousePressEvent(QMouseEvent *) override;
-
+  void wheelEvent(QWheelEvent *event);
  signals:
   void PixelTrack(int x, int y, double f);
 

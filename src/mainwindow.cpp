@@ -5,6 +5,7 @@
 #include <QImageReader>
 #include <QScrollBar>
 #include <QSplitter>
+#include <QWheelEvent>
 
 #include "imageviewer.h"
 #include "ui_mainwindow.h"
@@ -42,6 +43,7 @@ void MainWindow::UpdateView() {
   ui_->listView->reset();
 }
 
+
 MainWindow::~MainWindow() { delete ui_; }
 
 void MainWindow::on_actionOpen_Image_triggered() {
@@ -53,7 +55,7 @@ void MainWindow::on_actionOpen_Image_triggered() {
 
 void MainWindow::ShowPixel(int i, int j, double scf) {
   statusBar()->showMessage(
-      QString("Pixel [%1,%2] | Zoom [%3\%]").arg(i).arg(j).arg( scf*100.0));
+      QString("Pixel [%1,%2] | Zoom [%3\%]").arg(i).arg(j).arg(scf * 100.0));
 }
 
 void MainWindow::LoadImage(const QString &image_path, const bool reload) {

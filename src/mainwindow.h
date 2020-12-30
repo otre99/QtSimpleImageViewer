@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow {
   ~MainWindow() override;
   void LoadImage(const QString &image_path, bool reload = true);
 
+
  private slots:
   void on_actionOpen_Image_triggered();
   void ShowPixel(int i, int j, double scf);

@@ -1,13 +1,16 @@
 #include "imageslistmodel.h"
+
 #include <QDebug>
 #include <QImageReader>
 
 namespace {
-const QStringList img_ext = {"*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.png", "*.PNG"};
-const int kDisplayIconSize = 128;
-const size_t kMaxImageInCache = (256 * 1024 * 1024) / (kDisplayIconSize * kDisplayIconSize * 4); // 256 Mb of cache
-
-} // namespace
+static const QStringList img_ext = {"*.jpg",  "*.JPG", "*.jpeg",
+                                    "*.JPEG", "*.png", "*.PNG"};
+static const int kDisplayIconSize = 128;
+static const size_t kMaxImageInCache =
+    (256 * 1024 * 1024) /
+    (kDisplayIconSize * kDisplayIconSize * 4);  // 256 Mb of cache
+}  // namespace
 
 ImagesListModel::ImagesListModel() {
   connect(this, &ImagesListModel::LoadImageRequest, &async_image_loader_,
@@ -32,7 +35,7 @@ void ImagesListModel::Init(const QString &folder) {
   endResetModel();
   pixmap_cache_.clear();
   pixmap_cache_.setMaxCost(
-      kMaxImageInCache); // TODO (otre99): avoid  hardcoding!!!!
+      kMaxImageInCache);  // TODO (otre99): avoid  hardcoding!!!!
 
   QImage loadinIcon(":/icons/icons/loading.png");
   fake_image_ = QPixmap::fromImage(
@@ -48,15 +51,14 @@ int ImagesListModel::rowCount(const QModelIndex & /*parent*/) const {
 QVariant ImagesListModel::data(const QModelIndex &index, const int role) const {
   if (index.isValid() && role == Qt::DecorationRole) {
     const int key = index.row();
-    if (pixmap_cache_.contains(key))
-      return *pixmap_cache_[key];
+    if (pixmap_cache_.contains(key)) return *pixmap_cache_[key];
     const QString image_path = GetImagePath(key);
     if (!soft_loading_)
       emit LoadImageRequest(image_path,
                             QSize(kDisplayIconSize, kDisplayIconSize), key);
     return fake_image_;
-  } else if (role == Qt::DisplayRole){
-      return QString::number(index.row());
+  } else if (role == Qt::DisplayRole) {
+    return QString::number(index.row());
   }
   return QVariant();
 }

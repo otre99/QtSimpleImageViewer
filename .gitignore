@@ -5,3 +5,7 @@
 =======
 /src_mine/
 >>>>>>> Stashed changes
+build/*
+AppImage/*
+/src/CMakeLists.txt.user
+/gen_appimage.sh
