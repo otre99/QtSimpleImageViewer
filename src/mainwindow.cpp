@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-
+#include <QMessageBox>
 #include <QDebug>
 #include <QFileDialog>
 #include <QImageReader>
@@ -78,6 +78,9 @@ void MainWindow::LoadImage(const QString &image_path, const bool reload) {
       images_list_model_.Init(image_path);
       current_image_index_ = 0;
     }
+  } else {
+    QMessageBox::critical(this, "Error open file:", image_path);
+    return;
   }
   if (!ui_->actionZoom_In->isEnabled()) {
     ui_->actionZoom_In->setEnabled(true);

@@ -6,6 +6,7 @@
 #include "mainwindow.h"
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
+  a.setStyle("Fusion");
 
   // I like dark themes
   QPalette newPalette;
