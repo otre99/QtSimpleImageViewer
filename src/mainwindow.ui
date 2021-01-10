@@ -68,7 +68,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen_Image"/>
+    <addaction name="actionOpenImage"/>
     <addaction name="actionNext"/>
     <addaction name="actionBack"/>
    </widget>
@@ -76,16 +76,16 @@
     <property name="title">
      <string>Zoom</string>
     </property>
-    <addaction name="actionZoom_In"/>
-    <addaction name="actionZoom_Out"/>
-    <addaction name="actionFit_Width"/>
-    <addaction name="actionScale_100"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionFitWidth"/>
+    <addaction name="actionScale100"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuZoom"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionOpen_Image">
+  <action name="actionOpenImage">
    <property name="text">
     <string>Open Image</string>
    </property>
@@ -109,7 +109,7 @@
     <string>Left</string>
    </property>
   </action>
-  <action name="actionZoom_In">
+  <action name="actionZoomIn">
    <property name="text">
     <string>Zoom In</string>
    </property>
@@ -117,7 +117,7 @@
     <string>+</string>
    </property>
   </action>
-  <action name="actionZoom_Out">
+  <action name="actionZoomOut">
    <property name="text">
     <string>Zoom Out</string>
    </property>
@@ -125,7 +125,7 @@
     <string>-</string>
    </property>
   </action>
-  <action name="actionFit_Width">
+  <action name="actionFitWidth">
    <property name="text">
     <string>Fit Width</string>
    </property>
@@ -133,7 +133,7 @@
     <string>W</string>
    </property>
   </action>
-  <action name="actionScale_100">
+  <action name="actionScale100">
    <property name="text">
     <string>Scale 100%</string>
    </property>

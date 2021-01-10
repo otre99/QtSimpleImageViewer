@@ -1,11 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "imageslistmodel.h"
 #include <QLabel>
 #include <QMainWindow>
-#include <QSlider>
-
-#include "imageslistmodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,32 +14,30 @@ class ImageViewer;
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
- public:
+public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow() override;
-  void LoadImage(const QString &image_path, bool reload = true);
+  void loadImage(const QString &image_path, bool reload);
 
-
- private slots:
-  void on_actionOpen_Image_triggered();
-  void ShowPixel(int i, int j, double scf);
-  void on_listView_doubleClicked(const QModelIndex &index);
+private slots:
+  void on_actionOpenImage_triggered();
+  void showPixel(int i, int j, double scf);
   void on_listView_clicked(const QModelIndex &index);
   void on_actionNext_triggered();
   void on_actionBack_triggered();
-  void UpdateView();
-  void on_actionZoom_In_triggered();
-  void on_actionZoom_Out_triggered();
-  void on_actionFit_Width_triggered();
-  void on_actionScale_100_triggered();
+  void updateView();
+  void on_actionZoomIn_triggered();
+  void on_actionZoomOut_triggered();
+  void on_actionFitWidth_triggered();
+  void on_actionScale100_triggered();
 
- private:
-  Ui::MainWindow *ui_;
-  ImageViewer *viewer_;
-  ImagesListModel images_list_model_;
-  QString last_img_path_;
-  int current_image_index_;
-  QLabel *lb_disply_img_info_;
+private:
+  Ui::MainWindow *ui;
+  ImageViewer *m_viewer;
+  ImagesListModel m_imagesListModel;
+  QString m_lastImgPath;
+  int m_currentImageIndex;
+  QLabel *m_labelDisplyImgInfo;
 };
 
-#endif  // MAINWINDOW_H
+#endif // MAINWINDOW_H
