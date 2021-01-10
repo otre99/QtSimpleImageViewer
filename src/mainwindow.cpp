@@ -1,139 +1,140 @@
 #include "mainwindow.h"
-#include <QMessageBox>
+#include "imageviewer.h"
+#include "ui_mainwindow.h"
 #include <QDebug>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QImageReader>
+#include <QMessageBox>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QWheelEvent>
 
-#include "imageviewer.h"
-#include "ui_mainwindow.h"
-
 namespace {
 const double kScaleFactorStep = 1.1;
-}  // namespace
+} // namespace
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui_(new Ui::MainWindow) {
-  ui_->setupUi(this);
+    : QMainWindow(parent), ui(new Ui::MainWindow) {
+  ui->setupUi(this);
   auto main_spliter = new QSplitter(Qt::Horizontal);
-  main_spliter->addWidget(viewer_ = new ImageViewer(this));
-  main_spliter->addWidget(ui_->listView);
+  main_spliter->addWidget(m_viewer = new ImageViewer(this));
+  main_spliter->addWidget(ui->listView);
 
   int w = main_spliter->width();
   main_spliter->setSizes({6 * w / 7, w / 7});
   setCentralWidget(main_spliter);
 
-  connect(viewer_, &ImageViewer::PixelTrack, this, &MainWindow::ShowPixel);
-  ui_->listView->setModel(&images_list_model_);
+  connect(m_viewer, &ImageViewer::pixelTrack, this, &MainWindow::showPixel);
+  ui->listView->setModel(&m_imagesListModel);
 
-  connect(ui_->listView->horizontalScrollBar(), &QScrollBar::sliderPressed,
-          &images_list_model_, &ImagesListModel::ActivateSoftLoading);
-  connect(ui_->listView->horizontalScrollBar(), &QScrollBar::sliderReleased,
-          this, &MainWindow::UpdateView);
+  connect(ui->listView->horizontalScrollBar(), &QScrollBar::sliderPressed,
+          &m_imagesListModel, &ImagesListModel::activateSoftLoading);
+  connect(ui->listView->horizontalScrollBar(), &QScrollBar::sliderReleased,
+          this, &MainWindow::updateView);
 
-  lb_disply_img_info_ = new QLabel(this);
-  statusBar()->addPermanentWidget(lb_disply_img_info_);
-  lb_disply_img_info_->setText("name: None");
+  m_labelDisplyImgInfo = new QLabel(this);
+  statusBar()->addPermanentWidget(m_labelDisplyImgInfo);
+  m_labelDisplyImgInfo->setText("name: None");
 
-  ui_->actionZoom_In->setEnabled(false);
-  ui_->actionZoom_Out->setEnabled(false);
-  ui_->actionFit_Width->setEnabled(false);
-  ui_->actionScale_100->setEnabled(false);
-  ui_->actionNext->setEnabled(false);
-  ui_->actionBack->setEnabled(false);
+  ui->actionZoomIn->setEnabled(false);
+  ui->actionZoomOut->setEnabled(false);
+  ui->actionFitWidth->setEnabled(false);
+  ui->actionScale100->setEnabled(false);
+  ui->actionNext->setEnabled(false);
+  ui->actionBack->setEnabled(false);
 }
 
-void MainWindow::UpdateView() {
-  images_list_model_.DeactivateSoftLoading();
-  ui_->listView->reset();
+void MainWindow::updateView() {
+  m_imagesListModel.deactivateSoftLoading();
+  ui->listView->reset();
 }
 
-MainWindow::~MainWindow() { delete ui_; }
+MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::on_actionOpen_Image_triggered() {
-  QString image_file =
-      QFileDialog::getOpenFileName(this, "Image", last_img_path_);
-  if (image_file.isEmpty()) return;
-  LoadImage(image_file);
+void MainWindow::on_actionOpenImage_triggered() {
+  QString imageFile =
+      QFileDialog::getOpenFileName(this, "Image", m_lastImgPath);
+  if (imageFile.isEmpty())
+    return;
+  loadImage(imageFile, true);
 }
 
-void MainWindow::ShowPixel(int i, int j, double scf) {
+void MainWindow::showPixel(int i, int j, double scf) {
   statusBar()->showMessage(
       QString("Pixel [%1,%2] | Zoom [%3\%]").arg(i).arg(j).arg(scf * 100.0));
 }
 
-void MainWindow::LoadImage(const QString &image_path, const bool reload) {
-  if (viewer_->ImagePtr()) {
-    delete viewer_->ImagePtr();
-    viewer_->Init();
+void MainWindow::loadImage(const QString &image_path, const bool reload) {
+  if (m_viewer->imagePtr()) {
+    delete m_viewer->imagePtr();
+    m_viewer->init();
   }
 
   QImageReader reader(image_path);
   if (reader.canRead()) {
-    viewer_->AttachImagePtr(new QImage(image_path));
-    last_img_path_ = image_path;
+    m_viewer->attachImagePtr(new QImage(image_path));
+    m_lastImgPath = image_path;
     if (reload) {
-      images_list_model_.Init(image_path);
-      current_image_index_ = 0;
+      m_imagesListModel.init(image_path);
+      m_currentImageIndex =
+          m_imagesListModel.indexOf(QFileInfo(image_path).fileName());
+      on_actionScale100_triggered();
     }
   } else {
     QMessageBox::critical(this, "Error open file:", image_path);
     return;
   }
-  if (!ui_->actionZoom_In->isEnabled()) {
-    ui_->actionZoom_In->setEnabled(true);
-    ui_->actionZoom_Out->setEnabled(true);
-    ui_->actionFit_Width->setEnabled(true);
-    ui_->actionScale_100->setEnabled(true);
-    ui_->actionNext->setEnabled(true);
-    ui_->actionBack->setEnabled(true);
+  if (!ui->actionZoomIn->isEnabled()) {
+    ui->actionZoomIn->setEnabled(true);
+    ui->actionZoomOut->setEnabled(true);
+    ui->actionFitWidth->setEnabled(true);
+    ui->actionScale100->setEnabled(true);
+    ui->actionNext->setEnabled(true);
+    ui->actionBack->setEnabled(true);
   }
 }
 
-void MainWindow::on_listView_doubleClicked(const QModelIndex &index) {}
-
 void MainWindow::on_listView_clicked(const QModelIndex &index) {
-  if (index.isValid()) {
-    lb_disply_img_info_->setText("Name: " +
-                                 images_list_model_.GetFileName(index.row()));
-    LoadImage(images_list_model_.GetImagePath(index.row()), false);
-    current_image_index_ = index.row();
+  if (index.isValid() && m_currentImageIndex != index.row()) {
+    m_labelDisplyImgInfo->setText("Name: " +
+                                  m_imagesListModel.fileName(index.row()));
+    loadImage(m_imagesListModel.imagePath(index.row()), false);
+    m_currentImageIndex = index.row();
   }
 }
 
 void MainWindow::on_actionNext_triggered() {
-  current_image_index_ =
-      (current_image_index_ + 1) % images_list_model_.rowCount();
-  LoadImage(images_list_model_.GetImagePath(current_image_index_), false);
-  QModelIndex index = images_list_model_.index(current_image_index_);
-  ui_->listView->setCurrentIndex(index);
-  lb_disply_img_info_->setText("Name: " +
-                               images_list_model_.GetFileName(index.row()));
+  m_currentImageIndex =
+      (m_currentImageIndex + 1) % m_imagesListModel.rowCount();
+  loadImage(m_imagesListModel.imagePath(m_currentImageIndex), false);
+  QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
+  ui->listView->setCurrentIndex(index);
+  m_labelDisplyImgInfo->setText("Name: " +
+                                m_imagesListModel.fileName(index.row()));
 }
 
 void MainWindow::on_actionBack_triggered() {
-  if (current_image_index_ == 0) {
-    current_image_index_ = images_list_model_.rowCount();
+  if (m_currentImageIndex == 0) {
+    m_currentImageIndex = m_imagesListModel.rowCount();
   }
-  current_image_index_ =
-      (current_image_index_ - 1) % images_list_model_.rowCount();
-  LoadImage(images_list_model_.GetImagePath(current_image_index_), false);
-  QModelIndex index = images_list_model_.index(current_image_index_);
-  ui_->listView->setCurrentIndex(index);
-  lb_disply_img_info_->setText("Name: " +
-                               images_list_model_.GetFileName(index.row()));
+  m_currentImageIndex =
+      (m_currentImageIndex - 1) % m_imagesListModel.rowCount();
+  loadImage(m_imagesListModel.imagePath(m_currentImageIndex), false);
+  QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
+  ui->listView->setCurrentIndex(index);
+  m_labelDisplyImgInfo->setText("Name: " +
+                                m_imagesListModel.fileName(index.row()));
 }
 
-void MainWindow::on_actionZoom_In_triggered() {
-  viewer_->SetScf(std::min(viewer_->GetScale() * kScaleFactorStep, 360.0));
+void MainWindow::on_actionZoomIn_triggered() {
+  m_viewer->setScf(std::min(m_viewer->scale() * kScaleFactorStep, 360.0));
 }
 
-void MainWindow::on_actionZoom_Out_triggered() {
-  viewer_->SetScf(std::max(viewer_->GetScale() / kScaleFactorStep, 1.0 / 360));
+void MainWindow::on_actionZoomOut_triggered() {
+  m_viewer->setScf(std::max(m_viewer->scale() / kScaleFactorStep, 1.0 / 360));
 }
 
-void MainWindow::on_actionFit_Width_triggered() { viewer_->FixWidth(); }
+void MainWindow::on_actionFitWidth_triggered() { m_viewer->fixWidth(); }
 
-void MainWindow::on_actionScale_100_triggered() { viewer_->SetScf(1.0); }
+void MainWindow::on_actionScale100_triggered() { m_viewer->setScf(1.0); }
