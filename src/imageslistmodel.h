@@ -10,30 +10,34 @@ class ImagesListModel : public QAbstractListModel {
   Q_OBJECT
 public:
   ImagesListModel();
-  void Init(const QString &folder);
+  void init(const QString &folder);
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index,
                 int role = Qt::DisplayRole) const override;
-  QString GetImagePath(int row) const;
-  QString GetFileName(int row) const {return image_names_[row];  }
+  QString imagePath(int row) const;
+  QString fileName(int row) const { return m_imageNames[row]; }
+
+  int indexOf(const QString &imgPath) {
+      return m_imageNames.indexOf(imgPath);
+  };
 
 signals:
-  void LoadImageRequest(const QString &, const QSize &, int) const;
+  void loadImageRequest(const QString &, const QSize &, int) const;
 
 public slots:
-  void ActivateSoftLoading() { soft_loading_ = true; }
-  void DeactivateSoftLoading() { soft_loading_ = false; }
+  void activateSoftLoading() { m_softLoading = true; }
+  void deactivateSoftLoading() { m_softLoading = false; }
 
 private slots:
-  void LoadingFinished(QPixmap *pixmap, int row);
+  void loadingFinished(QPixmap *pixmap, int row);
 
 private:
-  QStringList image_names_;
-  QDir image_folder_;
-  mutable QCache<int, QPixmap> pixmap_cache_;
-  AsyncImageLoader async_image_loader_;
-  QPixmap fake_image_;
-  bool soft_loading_;
+  QStringList m_imageNames;
+  QDir m_imageFolder;
+  mutable QCache<int, QPixmap> m_pixmapCache;
+  AsyncImageLoader m_asyncImageLoader;
+  QPixmap m_fakeImage;
+  bool m_softLoading;
 };
 
 #endif // IMAGESLISTMODEL_H
