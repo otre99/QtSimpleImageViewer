@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "imageviewer.h"
 #include "ui_mainwindow.h"
-#include <QDebug>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImageReader>
@@ -135,6 +134,6 @@ void MainWindow::on_actionZoomOut_triggered() {
   m_viewer->setScf(std::max(m_viewer->scale() / kScaleFactorStep, 1.0 / 360));
 }
 
-void MainWindow::on_actionFitWidth_triggered() { m_viewer->fixWidth(); }
+void MainWindow::on_actionFitWidth_triggered() { m_viewer->fitWidth(); }
 
 void MainWindow::on_actionScale100_triggered() { m_viewer->setScf(1.0); }

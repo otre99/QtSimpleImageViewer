@@ -128,7 +128,7 @@ void ImageViewer::adjustAll() {
   viewport()->update();
 }
 
-void ImageViewer::fixWidth() {
+void ImageViewer::fitWidth() {
   setScf(double(viewport()->width()) / m_imagePtr->width());
 }
 

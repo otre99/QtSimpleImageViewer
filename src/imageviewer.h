@@ -27,7 +27,7 @@ public slots:
   void setXmov(int x);
   void setYmov(int y);
   void setScf(double);
-  void fixWidth();
+  void fitWidth();
 
 private:
   QImage *m_imagePtr;

@@ -1,12 +1,8 @@
 #include "imageslistmodel.h"
-
-#include <QDebug>
 #include <QImageReader>
 
 namespace {
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, kImgExts,
-                          ({"*.jpg", "*.JPG", "*.jpeg", "*.JPEG", "*.png",
-                            "*.PNG"}))
+Q_GLOBAL_STATIC(QStringList, kImgExts)
 
 static const int kDisplayIconSize = 128;
 static const size_t kMaxImageInCache =
@@ -19,6 +15,13 @@ ImagesListModel::ImagesListModel() {
           &AsyncImageLoader::enqueue);
   connect(&m_asyncImageLoader, &AsyncImageLoader::imageLoaded, this,
           &ImagesListModel::loadingFinished);
+
+  const auto imgFmt = QImageReader::supportedImageFormats();
+  for (const QByteArray &fmt : imgFmt) {
+    QString wc(fmt);
+    kImgExts->append("*." + wc);
+    kImgExts->append("*." + wc.toUpper());
+  }
 }
 
 QString ImagesListModel::imagePath(int row) const {
