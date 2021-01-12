@@ -32,7 +32,7 @@ public slots:
 private:
   QImage *m_imagePtr;
   int m_xMov, m_yMov;
-  int m_cW_, m_cH_;
+  int m_cW, m_cH;
   int m_screenW, m_screenH;
   double m_scaleFactor;
   QPoint m_lastPt;

@@ -5,6 +5,7 @@
 #include <QCache>
 #include <QDir>
 #include <QPixmap>
+#include <QObject>
 
 class ImagesListModel : public QAbstractListModel {
   Q_OBJECT
@@ -17,9 +18,7 @@ public:
   QString imagePath(int row) const;
   QString fileName(int row) const { return m_imageNames[row]; }
 
-  int indexOf(const QString &imgPath) {
-      return m_imageNames.indexOf(imgPath);
-  };
+  int indexOf(const QString &imgPath) { return m_imageNames.indexOf(imgPath); };
 
 signals:
   void loadImageRequest(const QString &, const QSize &, int) const;
@@ -34,7 +33,7 @@ private slots:
 private:
   QStringList m_imageNames;
   QDir m_imageFolder;
-  mutable QCache<int, QPixmap> m_pixmapCache;
+  QCache<int, QPixmap> m_pixmapCache;
   AsyncImageLoader m_asyncImageLoader;
   QPixmap m_fakeImage;
   bool m_softLoading;

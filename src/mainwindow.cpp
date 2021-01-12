@@ -81,7 +81,8 @@ void MainWindow::loadImage(const QString &image_path, const bool reload) {
       on_actionScale100_triggered();
     }
   } else {
-    QMessageBox::critical(this, "Error open file:", image_path);
+    QMessageBox::critical(this, "Error: " + QFileInfo(image_path).fileName(),
+                          reader.errorString());
     return;
   }
   if (!ui->actionZoomIn->isEnabled()) {

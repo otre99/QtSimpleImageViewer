@@ -1,8 +1,8 @@
 #include "asyncimageloader.h"
-#include <QDebug>
 #include <QImageReader>
 #include <QPixmap>
 #include <QThread>
+
 const int kMaxAsyncCalls = 1024;
 
 AsyncImageLoader::AsyncImageLoader(QObject *parent) : QThread(parent) {}
