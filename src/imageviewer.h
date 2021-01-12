@@ -19,7 +19,7 @@ protected:
   void resizeEvent(QResizeEvent *ev) override;
   void mouseMoveEvent(QMouseEvent *) override;
   void mousePressEvent(QMouseEvent *) override;
-  void wheelEvent(QWheelEvent *event);
+  void wheelEvent(QWheelEvent *event)  override;
 signals:
   void pixelTrack(int x, int y, double f);
 
