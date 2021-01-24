@@ -1,9 +1,11 @@
 #include "cropwidget.h"
-#include "imageviewer.h"
+
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
+
+#include "imageviewer.h"
 
 namespace {
 const int kMinimunRectSize = 16 << 1;
@@ -78,7 +80,11 @@ void CropWidget::paintEvent(QPaintEvent *event) {
   }
 
   if (m_currentCorner == kTopRight) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    path = QPainterPath();
+#else
     path.clear();
+#endif
     path.moveTo(QPoint{brect.right() - d, brect.y()});
     path.lineTo(QPoint{brect.right() + 1, brect.y()});
     path.lineTo(QPoint{brect.right() + 1, brect.y() + d});
@@ -88,7 +94,11 @@ void CropWidget::paintEvent(QPaintEvent *event) {
   }
 
   if (m_currentCorner == kBottomRight) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
+    path = QPainterPath();
+#else
     path.clear();
+#endif
     path.moveTo(QPoint{brect.right() + 1, brect.bottom() - d});
     path.lineTo(QPoint{brect.right() + 1, brect.bottom() + 1});
     path.lineTo(QPoint{brect.right() - d, brect.bottom() + 1});
@@ -111,58 +121,58 @@ void CropWidget::mouseMoveEvent(QMouseEvent *ev) {
     newrect.translate(dl);
   } else {
     switch (m_currentCorner) {
-    case kTopLeft:
-      if (newrect.width() - dl.x() < kMinimunRectSize)
-        dl.setX(newrect.width() - kMinimunRectSize);
-      if (newrect.height() - dl.y() < kMinimunRectSize)
-        dl.setY(newrect.height() - kMinimunRectSize);
-      newrect.adjust(dl.x(), dl.y(), 0, 0);
-      break;
-    case kTopRight:
-      if (newrect.width() + dl.x() < kMinimunRectSize)
-        dl.setX(kMinimunRectSize - newrect.width());
-      if (newrect.height() - dl.y() < kMinimunRectSize)
-        dl.setY(newrect.height() - kMinimunRectSize);
-      newrect.adjust(0, dl.y(), dl.x(), 0);
-      break;
-    case kBottomRight:
-      if (newrect.width() + dl.x() < kMinimunRectSize)
-        dl.setX(kMinimunRectSize - newrect.width());
-      if (newrect.height() + dl.y() < kMinimunRectSize)
-        dl.setY(kMinimunRectSize - newrect.height());
-      newrect.adjust(0, 0, dl.x(), dl.y());
-      break;
-    case kBottomLeft:
-      if (newrect.width() - dl.x() < kMinimunRectSize)
-        dl.setX(newrect.width() - kMinimunRectSize);
-      if (newrect.height() + dl.y() < kMinimunRectSize)
-        dl.setY(kMinimunRectSize - newrect.height());
-      newrect.adjust(dl.x(), 0, 0, dl.y());
-      break;
-    case kTopCenter:
-      dl.setX(0);
-      if (newrect.height() - dl.y() < kMinimunRectSize)
-        dl.setY(newrect.height() - kMinimunRectSize);
-      newrect.adjust(0, dl.y(), 0, 0);
-      break;
-    case kBottomCenter:
-      dl.setX(0);
-      if (newrect.height() + dl.y() < kMinimunRectSize)
-        dl.setY(kMinimunRectSize - newrect.height());
-      newrect.adjust(0, 0, 0, dl.y());
-      break;
-    case kRightCenter:
-      dl.setY(0);
-      if (newrect.width() + dl.x() < kMinimunRectSize)
-        dl.setX(kMinimunRectSize - newrect.width());
-      newrect.adjust(0, 0, dl.x(), 0);
-      break;
-    case kLeftCenter:
-      dl.setY(0);
-      if (newrect.width() - dl.x() < kMinimunRectSize)
-        dl.setX(newrect.width() - kMinimunRectSize);
-      newrect.adjust(dl.x(), 0, 0, 0);
-      break;
+      case kTopLeft:
+        if (newrect.width() - dl.x() < kMinimunRectSize)
+          dl.setX(newrect.width() - kMinimunRectSize);
+        if (newrect.height() - dl.y() < kMinimunRectSize)
+          dl.setY(newrect.height() - kMinimunRectSize);
+        newrect.adjust(dl.x(), dl.y(), 0, 0);
+        break;
+      case kTopRight:
+        if (newrect.width() + dl.x() < kMinimunRectSize)
+          dl.setX(kMinimunRectSize - newrect.width());
+        if (newrect.height() - dl.y() < kMinimunRectSize)
+          dl.setY(newrect.height() - kMinimunRectSize);
+        newrect.adjust(0, dl.y(), dl.x(), 0);
+        break;
+      case kBottomRight:
+        if (newrect.width() + dl.x() < kMinimunRectSize)
+          dl.setX(kMinimunRectSize - newrect.width());
+        if (newrect.height() + dl.y() < kMinimunRectSize)
+          dl.setY(kMinimunRectSize - newrect.height());
+        newrect.adjust(0, 0, dl.x(), dl.y());
+        break;
+      case kBottomLeft:
+        if (newrect.width() - dl.x() < kMinimunRectSize)
+          dl.setX(newrect.width() - kMinimunRectSize);
+        if (newrect.height() + dl.y() < kMinimunRectSize)
+          dl.setY(kMinimunRectSize - newrect.height());
+        newrect.adjust(dl.x(), 0, 0, dl.y());
+        break;
+      case kTopCenter:
+        dl.setX(0);
+        if (newrect.height() - dl.y() < kMinimunRectSize)
+          dl.setY(newrect.height() - kMinimunRectSize);
+        newrect.adjust(0, dl.y(), 0, 0);
+        break;
+      case kBottomCenter:
+        dl.setX(0);
+        if (newrect.height() + dl.y() < kMinimunRectSize)
+          dl.setY(kMinimunRectSize - newrect.height());
+        newrect.adjust(0, 0, 0, dl.y());
+        break;
+      case kRightCenter:
+        dl.setY(0);
+        if (newrect.width() + dl.x() < kMinimunRectSize)
+          dl.setX(kMinimunRectSize - newrect.width());
+        newrect.adjust(0, 0, dl.x(), 0);
+        break;
+      case kLeftCenter:
+        dl.setY(0);
+        if (newrect.width() - dl.x() < kMinimunRectSize)
+          dl.setX(newrect.width() - kMinimunRectSize);
+        newrect.adjust(dl.x(), 0, 0, 0);
+        break;
     }
   }
   const int d = kMinimunRectSize >> 1;

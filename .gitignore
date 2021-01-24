@@ -9,3 +9,6 @@ build/*
 AppImage/*
 /src/CMakeLists.txt.user
 /gen_appimage.sh
+debug/*
+/AppImage
+/src/SimpleQtImageViewer.pro.user

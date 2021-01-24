@@ -1,7 +1,5 @@
 #include "mainwindow.h"
-#include "cropwidget.h"
-#include "imageviewer.h"
-#include "ui_mainwindow.h"
+
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -11,6 +9,10 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QWheelEvent>
+
+#include "cropwidget.h"
+#include "imageviewer.h"
+#include "ui_mainwindow.h"
 
 namespace {
 const double kScaleFactorStep = 1.1;
@@ -152,6 +154,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_Return && m_cropWidget->isVisible()) {
     doCrop();
     event->accept();
+  } else if (event->key() == Qt::Key_Escape) {
+    m_cropWidget->hide();
   } else {
     QMainWindow::keyPressEvent(event);
   }
@@ -171,7 +175,6 @@ void MainWindow::doCrop() {
 }
 
 void MainWindow::on_actionBack_triggered() {
-
   int tmp = m_currentImageIndex;
   if (m_currentImageIndex == 0) {
     tmp = m_imagesListModel.rowCount();
