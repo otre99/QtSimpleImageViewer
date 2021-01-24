@@ -32,6 +32,9 @@
       <height>128</height>
      </size>
     </property>
+    <property name="textElideMode">
+     <enum>Qt::ElideMiddle</enum>
+    </property>
     <property name="flow">
      <enum>QListView::TopToBottom</enum>
     </property>
@@ -61,7 +64,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -71,6 +74,9 @@
     <addaction name="actionOpenImage"/>
     <addaction name="actionNext"/>
     <addaction name="actionBack"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
    </widget>
    <widget class="QMenu" name="menuZoom">
     <property name="title">
@@ -81,8 +87,15 @@
     <addaction name="actionFitWidth"/>
     <addaction name="actionScale100"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCrop"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuZoom"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpenImage">
@@ -94,6 +107,10 @@
    </property>
   </action>
   <action name="actionNext">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/go-next.svg</normaloff>:/icons/icons/go-next.svg</iconset>
+   </property>
    <property name="text">
     <string>Next</string>
    </property>
@@ -102,6 +119,10 @@
    </property>
   </action>
   <action name="actionBack">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/go-previous.svg</normaloff>:/icons/icons/go-previous.svg</iconset>
+   </property>
    <property name="text">
     <string>Previous</string>
    </property>
@@ -110,6 +131,10 @@
    </property>
   </action>
   <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/zoom-in.svg</normaloff>:/icons/icons/zoom-in.svg</iconset>
+   </property>
    <property name="text">
     <string>Zoom In</string>
    </property>
@@ -118,6 +143,10 @@
    </property>
   </action>
   <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/zoom-out.svg</normaloff>:/icons/icons/zoom-out.svg</iconset>
+   </property>
    <property name="text">
     <string>Zoom Out</string>
    </property>
@@ -141,8 +170,38 @@
     <string>S</string>
    </property>
   </action>
+  <action name="actionCrop">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/transform-crop.svg</normaloff>:/icons/icons/transform-crop.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Crop</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

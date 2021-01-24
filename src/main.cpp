@@ -34,5 +34,17 @@ int main(int argc, char *argv[]) {
     w.loadImage(args[1], true);
   }
   w.showMaximized();
+
+//  QImage img(101,50,QImage::Format_ARGB32);
+//  int dex=0;
+//  for (int i=0; i<50; ++i){
+//      for (int j=0; j<101; ++j){
+//          img.setPixel(j,i,dex%2 ? qRgb(255,0,0) : qRgb(0,0,1));
+//          dex+=1;
+//      }
+//  }
+//  img.save("OK.png");
   return QApplication::exec();
+
+
 }

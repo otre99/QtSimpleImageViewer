@@ -16,8 +16,8 @@ public:
   QVariant data(const QModelIndex &index,
                 int role = Qt::DisplayRole) const override;
   QString imagePath(int row) const;
+  void refreshItem(int row);
   QString fileName(int row) const { return m_imageNames[row]; }
-
   int indexOf(const QString &imgPath) { return m_imageNames.indexOf(imgPath); };
 
 signals:

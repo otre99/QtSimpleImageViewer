@@ -2,5 +2,10 @@
     <qresource prefix="/icons">
         <file>icons/loading.png</file>
         <file>icons/SimpleImageViewer.ico</file>
+        <file>icons/transform-crop.svg</file>
+        <file>icons/go-next.svg</file>
+        <file>icons/go-previous.svg</file>
+        <file>icons/zoom-out.svg</file>
+        <file>icons/zoom-in.svg</file>
     </qresource>
 </RCC>

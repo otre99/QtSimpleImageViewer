@@ -2,7 +2,7 @@
 #define IMAGEVIEWER_H
 
 #include <QAbstractScrollArea>
-
+#include <QPixmap>
 class QImage;
 
 class ImageViewer : public QAbstractScrollArea {
@@ -13,6 +13,9 @@ public:
   void init();
   QImage *imagePtr();
   double scale() const { return m_scaleFactor; }
+  QRect canvasRect() const ;
+  QRect imageRect() const;
+
 
 protected:
   void paintEvent(QPaintEvent *) override;
@@ -28,6 +31,7 @@ public slots:
   void setYmov(int y);
   void setScf(double);
   void fitWidth();
+  void generateCache();
 
 private:
   QImage *m_imagePtr;
@@ -36,10 +40,11 @@ private:
   int m_screenW, m_screenH;
   double m_scaleFactor;
   QPoint m_lastPt;
-
-private:
   void adjustAll();
   void selectScf();
+  QTimer* cacheTimer_;
+  void queueGenerateCache();
+  QPixmap m_cachedPixmap;
 };
 
 #endif // IMAGEVIEWER_H

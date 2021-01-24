@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
+#include <QTimer>
 
 ImageViewer::ImageViewer(QWidget *parent) : QAbstractScrollArea(parent) {
   init();
@@ -28,6 +29,8 @@ void ImageViewer::init() {
   m_xMov = m_yMov = 0;
   m_cW = m_cH = 0;
   setEnabled(false);
+  m_cachedPixmap = QPixmap();
+  cacheTimer_ = nullptr;
 }
 
 void ImageViewer::selectScf() {
@@ -49,10 +52,24 @@ void ImageViewer::paintEvent(QPaintEvent *) {
   if (!m_imagePtr)
     return;
   QPainter p(viewport());
-
   p.translate(QPoint(viewport()->width() / 2, viewport()->height() / 2));
-  p.drawImage(QRect(-m_screenW / 2, -m_screenH / 2, m_screenW, m_screenH),
-              *m_imagePtr, QRect(m_xMov, m_yMov, m_cW, m_cH));
+  if (m_scaleFactor != 1.0 && !m_cachedPixmap.isNull()) {
+    p.drawPixmap(QRect(-m_screenW / 2, -m_screenH / 2, m_screenW, m_screenH),
+                 m_cachedPixmap);
+  } else {
+    p.drawImage(QRect(-m_screenW / 2, -m_screenH / 2, m_screenW, m_screenH),
+                *m_imagePtr, QRect(m_xMov, m_yMov, m_cW, m_cH));
+  }
+}
+
+QRect ImageViewer::canvasRect() const {
+  QPoint p(viewport()->width() / 2, viewport()->height() / 2);
+  return {p - QPoint{m_screenW / 2, m_screenH / 2},
+          QSize{m_screenW, m_screenH}};
+}
+
+QRect ImageViewer::imageRect() const {
+  return QRect(m_xMov, m_yMov, m_cW, m_cH);
 }
 
 void ImageViewer::mouseMoveEvent(QMouseEvent *e) {
@@ -72,6 +89,7 @@ void ImageViewer::mouseMoveEvent(QMouseEvent *e) {
         std::max(std::min(m_lastPt.y() - yyf, m_imagePtr->height() - m_cH), 0);
     horizontalScrollBar()->setValue(m_xMov);
     verticalScrollBar()->setValue(m_yMov);
+    queueGenerateCache();
   }
 }
 
@@ -126,16 +144,70 @@ void ImageViewer::adjustAll() {
   verticalScrollBar()->setValue(m_yMov);
 
   viewport()->update();
+  queueGenerateCache();
 }
 
 void ImageViewer::fitWidth() {
   setScf(double(viewport()->width()) / m_imagePtr->width());
 }
 
+void ImageViewer::queueGenerateCache() {
+  if (!m_cachedPixmap.isNull()) // clear the old pixmap if there's any
+    m_cachedPixmap = QPixmap();
+
+  // we don't need to cache the scaled image if its the same as the original
+  if (m_scaleFactor == 1.0) {
+    if (cacheTimer_) {
+      cacheTimer_->stop();
+      delete cacheTimer_;
+      cacheTimer_ = nullptr;
+    }
+    return;
+  }
+
+  if (!cacheTimer_) {
+    cacheTimer_ = new QTimer();
+    cacheTimer_->setSingleShot(true);
+    connect(cacheTimer_, &QTimer::timeout, this, &ImageViewer::generateCache);
+  }
+  if (cacheTimer_)
+    cacheTimer_->start(200); // restart the timer
+}
+
+void ImageViewer::generateCache() {
+  // disable the one-shot timer
+  cacheTimer_->deleteLater();
+  cacheTimer_ = nullptr;
+
+  if (!m_imagePtr)
+    return;
+
+  QRect subRect(m_xMov, m_yMov, m_cW, m_cH);
+
+  const uchar *bits = m_imagePtr->constBits();
+  unsigned int offset = subRect.x() * m_imagePtr->depth() / 8 +
+                        subRect.y() * m_imagePtr->bytesPerLine();
+  QImage subImage = QImage(bits + offset, subRect.width(), subRect.height(),
+                           m_imagePtr->bytesPerLine(), m_imagePtr->format());
+
+  // If the original image has a color table, also use it for the subImage
+  QVector<QRgb> colorTable = m_imagePtr->colorTable();
+  if (!colorTable.empty()) {
+    subImage.setColorTable(colorTable);
+  }
+  QImage scaled =
+      subImage.scaled(QSize(m_screenW, m_screenW), Qt::KeepAspectRatio,
+                      Qt::SmoothTransformation);
+  // convert the cached scaled image to pixmap
+  m_cachedPixmap = QPixmap::fromImage(scaled);
+  viewport()->update();
+}
+
 void ImageViewer::setXmov(int x) {
   if (x != m_xMov) {
     m_xMov = x;
     viewport()->update();
+    queueGenerateCache();
   }
 }
 
@@ -143,6 +215,7 @@ void ImageViewer::setYmov(int y) {
   if (y != m_yMov) {
     m_yMov = y;
     viewport()->update();
+    queueGenerateCache();
   }
 }
 

@@ -23,6 +23,7 @@ add_executable(${CMAKE_PROJECT_NAME}
     imageviewer.cpp
     mainwindow.ui
     resources.qrc
+    cropwidget.cpp
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
