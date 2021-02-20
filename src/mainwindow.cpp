@@ -1,13 +1,18 @@
 #include "mainwindow.h"
-#include "imageviewer.h"
-#include "ui_mainwindow.h"
+
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImageReader>
+#include <QKeyEvent>
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QWheelEvent>
+
+#include "cropwidget.h"
+#include "imageviewer.h"
+#include "ui_mainwindow.h"
 
 namespace {
 const double kScaleFactorStep = 1.1;
@@ -42,6 +47,19 @@ MainWindow::MainWindow(QWidget *parent)
   ui->actionScale100->setEnabled(false);
   ui->actionNext->setEnabled(false);
   ui->actionBack->setEnabled(false);
+  ui->actionSave_as->setEnabled(false);
+  ui->actionFlip_H->setEnabled(false);
+  ui->actionFlip_V->setEnabled(false);
+  ui->actionRotate_L->setEnabled(false);
+  ui->actionRotate_R->setEnabled(false);
+  ui->actionCrop->setEnabled(false);
+
+  ui->actionSave->setEnabled(m_imageWasModified = false);
+
+  m_cropWidget = new CropWidget(m_viewer->viewport());
+  m_cropWidget->hide();
+  m_cropWidget->setImageViewer(m_viewer);
+  connect(m_cropWidget, &CropWidget::info, this, &MainWindow::showInfo);
 }
 
 void MainWindow::updateView() {
@@ -64,7 +82,24 @@ void MainWindow::showPixel(int i, int j, double scf) {
       QString("Pixel [%1,%2] | Zoom [%3\%]").arg(i).arg(j).arg(scf * 100.0));
 }
 
-void MainWindow::loadImage(const QString &image_path, const bool reload) {
+void MainWindow::showInfo(const QString &msg) { statusBar()->showMessage(msg); }
+
+bool MainWindow::loadImage(const QString &image_path, const bool reload) {
+  if (m_imageWasModified) {
+    int ex = QMessageBox::warning(this, "Unsaed changes",
+                                  "Do you want to saved changes?", "Save",
+                                  "Ignore", "Cancel");
+    switch (ex) {
+    case 0:
+      on_actionSave_triggered();
+      break;
+    case 1:
+      updateImageChanged(false);
+      break;
+    case 2:
+      return false;
+    }
+  }
   if (m_viewer->imagePtr()) {
     delete m_viewer->imagePtr();
     m_viewer->init();
@@ -80,10 +115,13 @@ void MainWindow::loadImage(const QString &image_path, const bool reload) {
           m_imagesListModel.indexOf(QFileInfo(image_path).fileName());
       on_actionScale100_triggered();
     }
+    if (m_cropWidget->isVisible()) {
+      on_actionCrop_triggered();
+    }
   } else {
     QMessageBox::critical(this, "Error: " + QFileInfo(image_path).fileName(),
                           reader.errorString());
-    return;
+    return false;
   }
   if (!ui->actionZoomIn->isEnabled()) {
     ui->actionZoomIn->setEnabled(true);
@@ -92,39 +130,74 @@ void MainWindow::loadImage(const QString &image_path, const bool reload) {
     ui->actionScale100->setEnabled(true);
     ui->actionNext->setEnabled(true);
     ui->actionBack->setEnabled(true);
+    ui->actionSave_as->setEnabled(true);
+    ui->actionFlip_H->setEnabled(true);
+    ui->actionFlip_V->setEnabled(true);
+    ui->actionRotate_L->setEnabled(true);
+    ui->actionRotate_R->setEnabled(true);
+    ui->actionCrop->setEnabled(true);
   }
+  return true;
 }
 
 void MainWindow::on_listView_clicked(const QModelIndex &index) {
   if (index.isValid() && m_currentImageIndex != index.row()) {
     m_labelDisplyImgInfo->setText("Name: " +
                                   m_imagesListModel.fileName(index.row()));
-    loadImage(m_imagesListModel.imagePath(index.row()), false);
-    m_currentImageIndex = index.row();
+    if (loadImage(m_imagesListModel.imagePath(index.row()), false)) {
+      m_currentImageIndex = index.row();
+    }
   }
 }
 
 void MainWindow::on_actionNext_triggered() {
-  m_currentImageIndex =
-      (m_currentImageIndex + 1) % m_imagesListModel.rowCount();
-  loadImage(m_imagesListModel.imagePath(m_currentImageIndex), false);
-  QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
-  ui->listView->setCurrentIndex(index);
-  m_labelDisplyImgInfo->setText("Name: " +
-                                m_imagesListModel.fileName(index.row()));
+  const int tmp = (m_currentImageIndex + 1) % m_imagesListModel.rowCount();
+  if (loadImage(m_imagesListModel.imagePath(tmp), false)) {
+    QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
+    ui->listView->setCurrentIndex(index);
+    m_labelDisplyImgInfo->setText("Name: " +
+                                  m_imagesListModel.fileName(index.row()));
+    m_currentImageIndex = tmp;
+  }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+  if (event->key() == Qt::Key_Return && m_cropWidget->isVisible()) {
+    doCrop();
+    event->accept();
+  } else if (event->key() == Qt::Key_Escape) {
+    m_cropWidget->hide();
+  } else {
+    QMainWindow::keyPressEvent(event);
+  }
+}
+
+void MainWindow::doCrop() {
+  QRect finalRect = m_cropWidget->cropRectImage();
+  if (finalRect.isEmpty()) {
+    QMessageBox::critical(this, "Error", "Invalid crop rectangle");
+    return;
+  }
+  QImage *img = m_viewer->imagePtr();
+  *img = img->copy(finalRect);
+  m_viewer->adjustAll();
+  m_cropWidget->hide();
+  updateImageChanged(true);
 }
 
 void MainWindow::on_actionBack_triggered() {
+  int tmp = m_currentImageIndex;
   if (m_currentImageIndex == 0) {
-    m_currentImageIndex = m_imagesListModel.rowCount();
+    tmp = m_imagesListModel.rowCount();
   }
-  m_currentImageIndex =
-      (m_currentImageIndex - 1) % m_imagesListModel.rowCount();
-  loadImage(m_imagesListModel.imagePath(m_currentImageIndex), false);
-  QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
-  ui->listView->setCurrentIndex(index);
-  m_labelDisplyImgInfo->setText("Name: " +
-                                m_imagesListModel.fileName(index.row()));
+  tmp = (tmp - 1) % m_imagesListModel.rowCount();
+  if (loadImage(m_imagesListModel.imagePath(tmp), false)) {
+    QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
+    ui->listView->setCurrentIndex(index);
+    m_labelDisplyImgInfo->setText("Name: " +
+                                  m_imagesListModel.fileName(index.row()));
+    m_currentImageIndex = tmp;
+  }
 }
 
 void MainWindow::on_actionZoomIn_triggered() {
@@ -138,3 +211,65 @@ void MainWindow::on_actionZoomOut_triggered() {
 void MainWindow::on_actionFitWidth_triggered() { m_viewer->fitWidth(); }
 
 void MainWindow::on_actionScale100_triggered() { m_viewer->setScf(1.0); }
+
+void MainWindow::on_actionCrop_triggered() {
+  m_cropWidget->show();
+  int d = m_cropWidget->marging();
+  QRect r = m_viewer->canvasRect().adjusted(-d, -d, d, d);
+  m_cropWidget->setGeometry(r);
+}
+
+void MainWindow::updateImageChanged(bool val) {
+  m_imageWasModified = val;
+  ui->actionSave->setEnabled(m_imageWasModified);
+}
+
+void MainWindow::on_actionSave_triggered() {
+  QString path = m_imagesListModel.imagePath(m_currentImageIndex);
+  m_viewer->imagePtr()->save(path);
+
+  QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
+  m_imagesListModel.refreshItem(m_currentImageIndex);
+  ui->listView->update(index);
+  updateImageChanged(false);
+}
+
+void MainWindow::on_actionSave_as_triggered() {
+  QString imageFile =
+      QFileDialog::getSaveFileName(this, "Save image", m_lastImgPath);
+  if (imageFile.isEmpty())
+    return;
+  m_viewer->imagePtr()->save(imageFile);
+}
+
+void MainWindow::on_actionRotate_L_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  QTransform rot;
+  rot.rotate(-90);
+  *img = img->transformed(rot);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}
+
+void MainWindow::on_actionRotate_R_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  QTransform rot;
+  rot.rotate(90);
+  *img = img->transformed(rot);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}
+
+void MainWindow::on_actionFlip_H_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  *img = img->mirrored(true, false);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}
+
+void MainWindow::on_actionFlip_V_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  *img = img->mirrored(false, true);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}

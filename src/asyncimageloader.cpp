@@ -1,5 +1,7 @@
 #include "asyncimageloader.h"
+
 #include <QImageReader>
+#include <QPainter>
 #include <QPixmap>
 #include <QThread>
 
@@ -55,8 +57,21 @@ void AsyncImageLoader::loadImage(const QString &path, const QSize &target_size,
 
   QImageReader reader(path);
   if (reader.canRead()) {
-    reader.setScaledSize(target_size);
-    auto *pixmap = new QPixmap(QPixmap::fromImage(reader.read()));
+    double sw =
+        static_cast<double>(target_size.width()) / reader.size().width();
+    double sh =
+        static_cast<double>(target_size.height()) / reader.size().height();
+    double ss = std::min(sw, sh);
+    reader.setScaledSize(reader.size() * ss);
+
+    const QImage img = reader.read();
+    QPixmap *pixmap = new QPixmap(target_size);
+    pixmap->fill(Qt::transparent);
+    QPainter painter(pixmap);
+    int x = (target_size.width() - img.width()) / 2;
+    int y = (target_size.height() - img.height()) / 2;
+    painter.drawImage(QRect{{x, y}, img.size()}, img);
+    painter.end();
     emit imageLoaded(pixmap, row);
   }
   emit imageLoaded(nullptr, row);
