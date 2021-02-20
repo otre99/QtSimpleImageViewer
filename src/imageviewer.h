@@ -13,16 +13,15 @@ public:
   void init();
   QImage *imagePtr();
   double scale() const { return m_scaleFactor; }
-  QRect canvasRect() const ;
+  QRect canvasRect() const;
   QRect imageRect() const;
-
 
 protected:
   void paintEvent(QPaintEvent *) override;
   void resizeEvent(QResizeEvent *ev) override;
   void mouseMoveEvent(QMouseEvent *) override;
   void mousePressEvent(QMouseEvent *) override;
-  void wheelEvent(QWheelEvent *event)  override;
+  void wheelEvent(QWheelEvent *event) override;
 signals:
   void pixelTrack(int x, int y, double f);
 
@@ -32,6 +31,7 @@ public slots:
   void setScf(double);
   void fitWidth();
   void generateCache();
+  void adjustAll();
 
 private:
   QImage *m_imagePtr;
@@ -40,9 +40,8 @@ private:
   int m_screenW, m_screenH;
   double m_scaleFactor;
   QPoint m_lastPt;
-  void adjustAll();
   void selectScf();
-  QTimer* cacheTimer_;
+  QTimer *cacheTimer_;
   void queueGenerateCache();
   QPixmap m_cachedPixmap;
 };

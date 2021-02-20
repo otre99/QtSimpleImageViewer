@@ -48,6 +48,12 @@ MainWindow::MainWindow(QWidget *parent)
   ui->actionNext->setEnabled(false);
   ui->actionBack->setEnabled(false);
   ui->actionSave_as->setEnabled(false);
+  ui->actionFlip_H->setEnabled(false);
+  ui->actionFlip_V->setEnabled(false);
+  ui->actionRotate_L->setEnabled(false);
+  ui->actionRotate_R->setEnabled(false);
+  ui->actionCrop->setEnabled(false);
+
   ui->actionSave->setEnabled(m_imageWasModified = false);
 
   m_cropWidget = new CropWidget(m_viewer->viewport());
@@ -125,6 +131,11 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
     ui->actionNext->setEnabled(true);
     ui->actionBack->setEnabled(true);
     ui->actionSave_as->setEnabled(true);
+    ui->actionFlip_H->setEnabled(true);
+    ui->actionFlip_V->setEnabled(true);
+    ui->actionRotate_L->setEnabled(true);
+    ui->actionRotate_R->setEnabled(true);
+    ui->actionCrop->setEnabled(true);
   }
   return true;
 }
@@ -169,7 +180,7 @@ void MainWindow::doCrop() {
   }
   QImage *img = m_viewer->imagePtr();
   *img = img->copy(finalRect);
-  m_viewer->attachImagePtr(img);
+  m_viewer->adjustAll();
   m_cropWidget->hide();
   updateImageChanged(true);
 }
@@ -229,4 +240,36 @@ void MainWindow::on_actionSave_as_triggered() {
   if (imageFile.isEmpty())
     return;
   m_viewer->imagePtr()->save(imageFile);
+}
+
+void MainWindow::on_actionRotate_L_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  QTransform rot;
+  rot.rotate(-90);
+  *img = img->transformed(rot);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}
+
+void MainWindow::on_actionRotate_R_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  QTransform rot;
+  rot.rotate(90);
+  *img = img->transformed(rot);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}
+
+void MainWindow::on_actionFlip_H_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  *img = img->mirrored(true, false);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
+}
+
+void MainWindow::on_actionFlip_V_triggered() {
+  QImage *img = m_viewer->imagePtr();
+  *img = img->mirrored(false, true);
+  m_viewer->adjustAll();
+  updateImageChanged(true);
 }

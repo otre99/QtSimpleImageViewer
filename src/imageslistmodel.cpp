@@ -49,10 +49,7 @@ void ImagesListModel::init(const QString &folder) {
   m_softLoading = false;
 }
 
-void ImagesListModel::refreshItem(int row)
-{
-    m_pixmapCache.remove(row);
-}
+void ImagesListModel::refreshItem(int row) { m_pixmapCache.remove(row); }
 
 int ImagesListModel::rowCount(const QModelIndex & /*parent*/) const {
   return m_imageNames.count();

@@ -121,58 +121,58 @@ void CropWidget::mouseMoveEvent(QMouseEvent *ev) {
     newrect.translate(dl);
   } else {
     switch (m_currentCorner) {
-      case kTopLeft:
-        if (newrect.width() - dl.x() < kMinimunRectSize)
-          dl.setX(newrect.width() - kMinimunRectSize);
-        if (newrect.height() - dl.y() < kMinimunRectSize)
-          dl.setY(newrect.height() - kMinimunRectSize);
-        newrect.adjust(dl.x(), dl.y(), 0, 0);
-        break;
-      case kTopRight:
-        if (newrect.width() + dl.x() < kMinimunRectSize)
-          dl.setX(kMinimunRectSize - newrect.width());
-        if (newrect.height() - dl.y() < kMinimunRectSize)
-          dl.setY(newrect.height() - kMinimunRectSize);
-        newrect.adjust(0, dl.y(), dl.x(), 0);
-        break;
-      case kBottomRight:
-        if (newrect.width() + dl.x() < kMinimunRectSize)
-          dl.setX(kMinimunRectSize - newrect.width());
-        if (newrect.height() + dl.y() < kMinimunRectSize)
-          dl.setY(kMinimunRectSize - newrect.height());
-        newrect.adjust(0, 0, dl.x(), dl.y());
-        break;
-      case kBottomLeft:
-        if (newrect.width() - dl.x() < kMinimunRectSize)
-          dl.setX(newrect.width() - kMinimunRectSize);
-        if (newrect.height() + dl.y() < kMinimunRectSize)
-          dl.setY(kMinimunRectSize - newrect.height());
-        newrect.adjust(dl.x(), 0, 0, dl.y());
-        break;
-      case kTopCenter:
-        dl.setX(0);
-        if (newrect.height() - dl.y() < kMinimunRectSize)
-          dl.setY(newrect.height() - kMinimunRectSize);
-        newrect.adjust(0, dl.y(), 0, 0);
-        break;
-      case kBottomCenter:
-        dl.setX(0);
-        if (newrect.height() + dl.y() < kMinimunRectSize)
-          dl.setY(kMinimunRectSize - newrect.height());
-        newrect.adjust(0, 0, 0, dl.y());
-        break;
-      case kRightCenter:
-        dl.setY(0);
-        if (newrect.width() + dl.x() < kMinimunRectSize)
-          dl.setX(kMinimunRectSize - newrect.width());
-        newrect.adjust(0, 0, dl.x(), 0);
-        break;
-      case kLeftCenter:
-        dl.setY(0);
-        if (newrect.width() - dl.x() < kMinimunRectSize)
-          dl.setX(newrect.width() - kMinimunRectSize);
-        newrect.adjust(dl.x(), 0, 0, 0);
-        break;
+    case kTopLeft:
+      if (newrect.width() - dl.x() < kMinimunRectSize)
+        dl.setX(newrect.width() - kMinimunRectSize);
+      if (newrect.height() - dl.y() < kMinimunRectSize)
+        dl.setY(newrect.height() - kMinimunRectSize);
+      newrect.adjust(dl.x(), dl.y(), 0, 0);
+      break;
+    case kTopRight:
+      if (newrect.width() + dl.x() < kMinimunRectSize)
+        dl.setX(kMinimunRectSize - newrect.width());
+      if (newrect.height() - dl.y() < kMinimunRectSize)
+        dl.setY(newrect.height() - kMinimunRectSize);
+      newrect.adjust(0, dl.y(), dl.x(), 0);
+      break;
+    case kBottomRight:
+      if (newrect.width() + dl.x() < kMinimunRectSize)
+        dl.setX(kMinimunRectSize - newrect.width());
+      if (newrect.height() + dl.y() < kMinimunRectSize)
+        dl.setY(kMinimunRectSize - newrect.height());
+      newrect.adjust(0, 0, dl.x(), dl.y());
+      break;
+    case kBottomLeft:
+      if (newrect.width() - dl.x() < kMinimunRectSize)
+        dl.setX(newrect.width() - kMinimunRectSize);
+      if (newrect.height() + dl.y() < kMinimunRectSize)
+        dl.setY(kMinimunRectSize - newrect.height());
+      newrect.adjust(dl.x(), 0, 0, dl.y());
+      break;
+    case kTopCenter:
+      dl.setX(0);
+      if (newrect.height() - dl.y() < kMinimunRectSize)
+        dl.setY(newrect.height() - kMinimunRectSize);
+      newrect.adjust(0, dl.y(), 0, 0);
+      break;
+    case kBottomCenter:
+      dl.setX(0);
+      if (newrect.height() + dl.y() < kMinimunRectSize)
+        dl.setY(kMinimunRectSize - newrect.height());
+      newrect.adjust(0, 0, 0, dl.y());
+      break;
+    case kRightCenter:
+      dl.setY(0);
+      if (newrect.width() + dl.x() < kMinimunRectSize)
+        dl.setX(kMinimunRectSize - newrect.width());
+      newrect.adjust(0, 0, dl.x(), 0);
+      break;
+    case kLeftCenter:
+      dl.setY(0);
+      if (newrect.width() - dl.x() < kMinimunRectSize)
+        dl.setX(newrect.width() - kMinimunRectSize);
+      newrect.adjust(dl.x(), 0, 0, 0);
+      break;
     }
   }
   const int d = kMinimunRectSize >> 1;
@@ -199,6 +199,7 @@ void CropWidget::mouseReleaseEvent(QMouseEvent *ev) {
                     .arg(finalRect.height());
     emit info(r);
   }
+  setCursor(Qt::SizeAllCursor);
 }
 
 QRect CropWidget::buildRectFromTwoPoints(const QPoint &p1, const QPoint &p2,

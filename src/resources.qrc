@@ -7,5 +7,9 @@
         <file>icons/go-previous.svg</file>
         <file>icons/zoom-out.svg</file>
         <file>icons/zoom-in.svg</file>
+        <file>icons/FlipV.svg</file>
+        <file>icons/FlipH.svg</file>
+        <file>icons/object-rotate-left.svg</file>
+        <file>icons/object-rotate-right.svg</file>
     </qresource>
 </RCC>

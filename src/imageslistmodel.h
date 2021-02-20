@@ -4,8 +4,8 @@
 #include <QAbstractListModel>
 #include <QCache>
 #include <QDir>
-#include <QPixmap>
 #include <QObject>
+#include <QPixmap>
 
 class ImagesListModel : public QAbstractListModel {
   Q_OBJECT

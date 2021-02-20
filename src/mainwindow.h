@@ -19,8 +19,9 @@ public:
   explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow() override;
   bool loadImage(const QString &image_path, bool reload);
+
 protected:
-    void keyPressEvent(QKeyEvent *event) override final;
+  void keyPressEvent(QKeyEvent *event) override final;
 
 private slots:
   void on_actionOpenImage_triggered();
@@ -38,6 +39,14 @@ private slots:
   void showInfo(const QString &msg);
   void on_actionSave_as_triggered();
   void updateImageChanged(bool val);
+
+  void on_actionRotate_L_triggered();
+
+  void on_actionRotate_R_triggered();
+
+  void on_actionFlip_H_triggered();
+
+  void on_actionFlip_V_triggered();
 
 private:
   void doCrop();

@@ -92,6 +92,10 @@
      <string>Tools</string>
     </property>
     <addaction name="actionCrop"/>
+    <addaction name="actionRotate_L"/>
+    <addaction name="actionRotate_R"/>
+    <addaction name="actionFlip_H"/>
+    <addaction name="actionFlip_V"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuZoom"/>
@@ -196,6 +200,54 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionRotate_L">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/object-rotate-left.svg</normaloff>:/icons/icons/object-rotate-left.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate Left</string>
+   </property>
+   <property name="shortcut">
+    <string>L</string>
+   </property>
+  </action>
+  <action name="actionRotate_R">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/object-rotate-right.svg</normaloff>:/icons/icons/object-rotate-right.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate Right</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
+   </property>
+  </action>
+  <action name="actionFlip_H">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/FlipH.svg</normaloff>:/icons/icons/FlipH.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Flip H</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionFlip_V">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/FlipV.svg</normaloff>:/icons/icons/FlipV.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Flip V</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>
