@@ -15,13 +15,15 @@ SOURCES += \
     mainwindow.cpp \
     imageslistmodel.cpp \
     imageviewer.cpp \
-    asyncimageloader.cpp
+    asyncimageloader.cpp \
+    cropwidget.cpp
 
 HEADERS += \
     mainwindow.h \
     imageslistmodel.h \
     imageviewer.h \
-    asyncimageloader.h
+    asyncimageloader.h \
+    cropwidget.cpp
 FORMS += \
     mainwindow.ui
 
