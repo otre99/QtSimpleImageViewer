@@ -58,6 +58,7 @@ QRect CropWidget::cropRectImage() const {
 }
 
 void CropWidget::paintEvent(QPaintEvent *event) {
+  (void)event;
   QPainter painter(this);
   const int d = kMinimunRectSize >> 1;
   const QRect brect = painter.viewport().adjusted(d, d, -d, -d);
@@ -173,6 +174,7 @@ void CropWidget::mouseMoveEvent(QMouseEvent *ev) {
         dl.setX(newrect.width() - kMinimunRectSize);
       newrect.adjust(dl.x(), 0, 0, 0);
       break;
+    default:;
     }
   }
   const int d = kMinimunRectSize >> 1;
@@ -200,6 +202,7 @@ void CropWidget::mouseReleaseEvent(QMouseEvent *ev) {
     emit info(r);
   }
   setCursor(Qt::SizeAllCursor);
+  ev->accept();
 }
 
 QRect CropWidget::buildRectFromTwoPoints(const QPoint &p1, const QPoint &p2,
