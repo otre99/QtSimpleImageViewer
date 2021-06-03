@@ -64,9 +64,9 @@ void CropWidget::paintEvent(QPaintEvent *event) {
   const QRect brect = painter.viewport().adjusted(d, d, -d, -d);
 
   if (m_currentCorner == kInvaid) {
-    painter.fillRect(brect, QColor(128, 128, 128, 64));
-  } else {
     painter.fillRect(brect, m_bboxColor);
+  } else {
+    painter.fillRect(brect, QColor(128, 128, 128, 64));
   }
   painter.setPen(Qt::NoPen);
   painter.setBrush(m_sqColor);
