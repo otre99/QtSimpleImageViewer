@@ -46,6 +46,12 @@ private slots:
   void on_actionFlip_H_triggered();
   void on_actionFlip_V_triggered();
 
+  void on_actionAbout_triggered();
+
+  void on_actionAuto_Crop_triggered();
+
+  void on_actionCopy_To_Clipboard_triggered();
+
 private:
   void doCrop();
   bool m_imageWasModified;

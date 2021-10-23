@@ -24,6 +24,8 @@ add_executable(${CMAKE_PROJECT_NAME}
     mainwindow.ui
     resources.qrc
     cropwidget.cpp
+    image_utils/image_utils.cpp
+    image_utils/autocropborder.cpp
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)

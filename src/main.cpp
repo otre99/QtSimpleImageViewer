@@ -28,6 +28,9 @@ int main(int argc, char *argv[]) {
                       QColor(127, 127, 127));
   a.setPalette(newPalette);
 
+
+  //qRegisterMetaType<QPixmap*>();
+
   MainWindow w;
   const QStringList args = QApplication::arguments();
   if (args.size() > 1) {

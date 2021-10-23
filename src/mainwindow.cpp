@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -8,14 +9,18 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QWheelEvent>
+#include <QClipboard>
+#include <QMimeData>
 
 #include "cropwidget.h"
 #include "imageviewer.h"
 #include "ui_mainwindow.h"
+#include "image_utils/image_utils.h"
+
 
 namespace {
 const double kScaleFactorStep = 1.1;
-} // namespace
+}  // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -52,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent)
   ui->actionRotate_L->setEnabled(false);
   ui->actionRotate_R->setEnabled(false);
   ui->actionCrop->setEnabled(false);
+  ui->actionAuto_Crop->setEnabled(false);
+  ui->actionCopy_To_Clipboard->setEnabled(false);
 
   ui->actionSave->setEnabled(m_imageWasModified = false);
 
@@ -65,18 +72,19 @@ MainWindow::~MainWindow() { delete ui; }
 
 bool MainWindow::loadImage(const QString &image_path, const bool reload) {
   if (m_imageWasModified) {
-    int ex = QMessageBox::warning(this, "Unsaed changes",
-                                  "Do you want to saved changes?", "Save",
-                                  "Ignore", "Cancel");
+    QMessageBox::StandardButton ex = QMessageBox::warning(
+        this, "Unsaed changes", "Do you want to saved changes?",
+        QMessageBox::StandardButtons(
+            {QMessageBox::Save, QMessageBox::Ignore}));
     switch (ex) {
-    case 0:
-      on_actionSave_triggered();
-      break;
-    case 1:
-      updateImageChanged(false);
-      break;
-    case 2:
-      return false;
+      case QMessageBox::Save:
+        on_actionSave_triggered();
+        break;
+      case QMessageBox::Ignore:
+        updateImageChanged(false);
+        break;
+      default:
+        return false;
     }
   }
   if (m_viewer->imagePtr()) {
@@ -115,6 +123,8 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
     ui->actionRotate_L->setEnabled(true);
     ui->actionRotate_R->setEnabled(true);
     ui->actionCrop->setEnabled(true);
+    ui->actionAuto_Crop->setEnabled(true);
+    ui->actionCopy_To_Clipboard->setEnabled(true);
   }
   return true;
 }
@@ -133,8 +143,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 void MainWindow::on_actionOpenImage_triggered() {
   QString imageFile =
       QFileDialog::getOpenFileName(this, "Image", m_lastImgPath);
-  if (imageFile.isEmpty())
-    return;
+  if (imageFile.isEmpty()) return;
   loadImage(imageFile, true);
 }
 
@@ -173,8 +182,7 @@ void MainWindow::showInfo(const QString &msg) { statusBar()->showMessage(msg); }
 void MainWindow::on_actionSave_as_triggered() {
   QString imageFile =
       QFileDialog::getSaveFileName(this, "Save image", m_lastImgPath);
-  if (imageFile.isEmpty())
-    return;
+  if (imageFile.isEmpty()) return;
   m_viewer->imagePtr()->save(imageFile);
 }
 
@@ -272,3 +280,40 @@ void MainWindow::doCrop() {
   m_cropWidget->hide();
   updateImageChanged(true);
 }
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox::aboutQt(this, "ImageViewer");
+}
+
+
+void MainWindow::on_actionAuto_Crop_triggered()
+{
+    if (m_viewer->imagePtr()){
+
+        QImage *img = m_viewer->imagePtr();
+        QRect crop_rect1 = autoCropImage( *img, Qt::white);
+        QRect crop_rect2 = autoCropImage( *img);
+
+        const QRect crop_rect = crop_rect1&crop_rect2;
+
+        *img = img->copy(crop_rect);
+        m_viewer->adjustAll();
+        m_cropWidget->hide();
+        updateImageChanged(true);
+
+    }
+}
+
+
+void MainWindow::on_actionCopy_To_Clipboard_triggered()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    if (m_viewer->imagePtr()){
+        QMimeData *data = new QMimeData;
+        const QImage image = *(m_viewer->imagePtr());
+        data->setImageData(image);
+        clipboard->setMimeData(data, QClipboard::Clipboard);
+    }
+}
+
