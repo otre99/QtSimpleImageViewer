@@ -52,6 +52,8 @@ private slots:
 
   void on_actionCopy_To_Clipboard_triggered();
 
+  void on_actionCopy_path_to_Clipboard_triggered();
+
 private:
   void doCrop();
   bool m_imageWasModified;

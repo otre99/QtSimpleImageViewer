@@ -64,7 +64,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>20</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -98,6 +98,7 @@
     <addaction name="actionFlip_V"/>
     <addaction name="actionAuto_Crop"/>
     <addaction name="actionCopy_To_Clipboard"/>
+    <addaction name="actionCopy_path_to_Clipboard"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -280,10 +281,17 @@
     <string>Ctrl+C</string>
    </property>
   </action>
+  <action name="actionCopy_path_to_Clipboard">
+   <property name="text">
+    <string>Copy Path To Clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

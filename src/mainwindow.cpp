@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
   ui->actionCrop->setEnabled(false);
   ui->actionAuto_Crop->setEnabled(false);
   ui->actionCopy_To_Clipboard->setEnabled(false);
+  ui->actionCopy_path_to_Clipboard->setEnabled(false);
 
   ui->actionSave->setEnabled(m_imageWasModified = false);
 
@@ -125,6 +126,7 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
     ui->actionCrop->setEnabled(true);
     ui->actionAuto_Crop->setEnabled(true);
     ui->actionCopy_To_Clipboard->setEnabled(true);
+    ui->actionCopy_path_to_Clipboard->setEnabled(true);
   }
   return true;
 }
@@ -286,7 +288,6 @@ void MainWindow::on_actionAbout_triggered()
     QMessageBox::aboutQt(this, "ImageViewer");
 }
 
-
 void MainWindow::on_actionAuto_Crop_triggered()
 {
     if (m_viewer->imagePtr()){
@@ -305,7 +306,6 @@ void MainWindow::on_actionAuto_Crop_triggered()
     }
 }
 
-
 void MainWindow::on_actionCopy_To_Clipboard_triggered()
 {
     QClipboard *clipboard = QApplication::clipboard();
@@ -313,6 +313,17 @@ void MainWindow::on_actionCopy_To_Clipboard_triggered()
         QMimeData *data = new QMimeData;
         const QImage image = *(m_viewer->imagePtr());
         data->setImageData(image);
+        clipboard->setMimeData(data, QClipboard::Clipboard);
+    }
+}
+
+
+void MainWindow::on_actionCopy_path_to_Clipboard_triggered()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    if (m_viewer->imagePtr()){
+        QMimeData *data = new QMimeData;
+        data->setText( m_imagesListModel.imagePath( m_currentImageIndex ) );
         clipboard->setMimeData(data, QClipboard::Clipboard);
     }
 }
