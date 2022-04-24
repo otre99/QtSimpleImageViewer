@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   a.setPalette(newPalette);
 
 
-  //qRegisterMetaType<QPixmap*>();
+  qRegisterMetaType<QPixmap*>();
 
   MainWindow w;
   const QStringList args = QApplication::arguments();
