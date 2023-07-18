@@ -50,7 +50,11 @@ private slots:
   void on_actionCopy_To_Clipboard_triggered();
   void on_actionCopy_path_to_Clipboard_triggered();
 
-private:
+  void on_actionDestination_folder_triggered();
+
+  void on_actionCopy_to_Destination_folder_triggered();
+
+  private:
   void doCrop();
   bool m_imageWasModified;
   Ui::MainWindow *ui;
@@ -59,6 +63,9 @@ private:
   QString m_lastImgPath;
   int m_currentImageIndex;
   QLabel *m_labelDisplyImgInfo;
+  QLabel *m_labelDestinationFolder;
+  QLabel *m_LabelSaveImageCounter{0};
+  int m_saveImageCounter{0};
   CropWidget *m_cropWidget;
 };
 

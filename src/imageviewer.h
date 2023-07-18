@@ -22,6 +22,8 @@ protected:
   void mouseMoveEvent(QMouseEvent *) override;
   void mousePressEvent(QMouseEvent *) override;
   void wheelEvent(QWheelEvent *event) override;
+  //  void mouseDoubleClickEvent(QMouseEvent *event) override;
+
 signals:
   void pixelTrack(int x, int y, double f);
 
@@ -31,7 +33,7 @@ public slots:
   void setScf(double);
   void fitWidth();
   void generateCache();
-  void adjustAll();
+  void adjustAll(int xMov = -1, int yMov = -1);
 
 private:
   QImage *m_imagePtr;
@@ -40,6 +42,7 @@ private:
   int m_screenW, m_screenH;
   double m_scaleFactor;
   QPoint m_lastPt;
+  QPoint m_lastPs;
   void selectScf();
   QTimer *cacheTimer_;
   void queueGenerateCache();

@@ -78,6 +78,7 @@ void ImageViewer::mouseMoveEvent(QMouseEvent *e) {
       (pd_pos.x() - viewport()->width() / 2 + m_screenW / 2) / m_scaleFactor;
   const int yyf =
       (pd_pos.y() - viewport()->height() / 2 + m_screenH / 2) / m_scaleFactor;
+
   const int xx = m_xMov + xxf;
   const int yy = m_yMov + yyf;
   emit pixelTrack(xx, yy, m_scaleFactor);
@@ -91,6 +92,7 @@ void ImageViewer::mouseMoveEvent(QMouseEvent *e) {
     verticalScrollBar()->setValue(m_yMov);
     queueGenerateCache();
   }
+  m_lastPs = pd_pos;
 }
 
 void ImageViewer::mousePressEvent(QMouseEvent *e) {
@@ -101,19 +103,43 @@ void ImageViewer::mousePressEvent(QMouseEvent *e) {
   m_lastPt.setY(m_yMov +
                 (pd_pos.y() - viewport()->height() / 2 + m_screenH / 2) /
                     m_scaleFactor);
+  m_lastPs = pd_pos;
 }
 
 void ImageViewer::wheelEvent(QWheelEvent *event) {
   const QPoint numDegrees = event->angleDelta();
-  if (numDegrees.y() > 0) {
-    setScf(m_scaleFactor * 1.1);
-  } else {
-    setScf(m_scaleFactor / 1.1);
-  }
+  const double factor = (numDegrees.y() > 0) ? 1.1 : 1 / 1.1;
+  auto newOffeset = m_lastPs * (1.0 / m_scaleFactor * (1.0 - 1.0 / factor)) +
+                    QPointF(m_xMov, m_yMov);
+  int xMov = newOffeset.x();
+  int yMov = newOffeset.y();
+
+  if (xMov < 0 || xMov >= m_imagePtr->width())
+    xMov = -1;
+  if (yMov < 0 || yMov >= m_imagePtr->height())
+    yMov = -1;
+  m_scaleFactor *= factor;
+  adjustAll(xMov, yMov);
   event->accept();
 }
 
-void ImageViewer::adjustAll() {
+// void ImageViewer::ImageViewer::mouseDoubleClickEvent(QMouseEvent *event) {
+
+//  const QPointF ps = viewport()->mapFrom(this, event->pos());
+//  const double factor = (event->button() == Qt::LeftButton) ? 2 : 0.5;
+//  auto newOffeset = ps * (1.0 / m_scaleFactor * (1.0 - 1.0 / factor)) +
+//                    QPointF(m_xMov, m_yMov);
+//  int xMov = newOffeset.x();
+//  int yMov = newOffeset.y();
+//  if (xMov < 0 || xMov >= m_imagePtr->width())
+//    xMov = -1;
+//  if (yMov < 0 || yMov >= m_imagePtr->height())
+//    yMov = -1;
+//  m_scaleFactor *= factor;
+//  adjustAll(xMov, yMov);
+//}
+
+void ImageViewer::adjustAll(int xMov, int yMov) {
   m_screenW = viewport()->width();
   m_screenH = viewport()->height();
 
@@ -133,14 +159,22 @@ void ImageViewer::adjustAll() {
 
   horizontalScrollBar()->setPageStep(m_cW);
   horizontalScrollBar()->setMaximum(m_imagePtr->width() - m_cW);
-  m_xMov = qMin(qMax(0, m_xMov + (oldW - m_cW) / 2),
-                horizontalScrollBar()->maximum());
+  if (xMov == -1) {
+    m_xMov = qMin(qMax(0, m_xMov + (oldW - m_cW) / 2),
+                  horizontalScrollBar()->maximum());
+  } else {
+    m_xMov = qMin(xMov, horizontalScrollBar()->maximum());
+  }
   horizontalScrollBar()->setValue(m_xMov);
 
   verticalScrollBar()->setPageStep(m_cH);
   verticalScrollBar()->setMaximum(m_imagePtr->height() - m_cH);
-  m_yMov =
-      qMin(qMax(0, m_yMov + (oldH - m_cH) / 2), verticalScrollBar()->maximum());
+  if (yMov == -1) {
+    m_yMov = qMin(qMax(0, m_yMov + (oldH - m_cH) / 2),
+                  verticalScrollBar()->maximum());
+  } else {
+    m_yMov = qMin(yMov, verticalScrollBar()->maximum());
+  }
   verticalScrollBar()->setValue(m_yMov);
 
   viewport()->update();

@@ -1,26 +1,26 @@
 #include "mainwindow.h"
 
+#include <QClipboard>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImageReader>
 #include <QKeyEvent>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QWheelEvent>
-#include <QClipboard>
-#include <QMimeData>
+#include <QtConcurrent/QtConcurrent>
 
 #include "cropwidget.h"
+#include "image_utils/image_utils.h"
 #include "imageviewer.h"
 #include "ui_mainwindow.h"
-#include "image_utils/image_utils.h"
-
 
 namespace {
 const double kScaleFactorStep = 1.1;
-}  // namespace
+} // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -41,6 +41,12 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->listView->horizontalScrollBar(), &QScrollBar::sliderReleased,
           this, &MainWindow::updateView);
 
+  ui->statusBar->addPermanentWidget(new QLabel("Destination folder: "), 0);
+  ui->statusBar->addPermanentWidget(m_labelDestinationFolder = new QLabel(""),
+                                    0);
+  ui->statusBar->addPermanentWidget(m_LabelSaveImageCounter = new QLabel(""),
+                                    1);
+
   m_labelDisplyImgInfo = new QLabel(this);
   statusBar()->addPermanentWidget(m_labelDisplyImgInfo);
   m_labelDisplyImgInfo->setText("name: None");
@@ -60,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent)
   ui->actionAuto_Crop->setEnabled(false);
   ui->actionCopy_To_Clipboard->setEnabled(false);
   ui->actionCopy_path_to_Clipboard->setEnabled(false);
+  ui->actionCopy_to_Destination_folder->setEnabled(false);
+  ui->actionDestination_folder->setEnabled(false);
 
   ui->actionSave->setEnabled(m_imageWasModified = false);
 
@@ -75,17 +83,16 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
   if (m_imageWasModified) {
     QMessageBox::StandardButton ex = QMessageBox::warning(
         this, "Unsaed changes", "Do you want to saved changes?",
-        QMessageBox::StandardButtons(
-            {QMessageBox::Save, QMessageBox::Ignore}));
+        QMessageBox::StandardButtons({QMessageBox::Save, QMessageBox::Ignore}));
     switch (ex) {
-      case QMessageBox::Save:
-        on_actionSave_triggered();
-        break;
-      case QMessageBox::Ignore:
-        updateImageChanged(false);
-        break;
-      default:
-        return false;
+    case QMessageBox::Save:
+      on_actionSave_triggered();
+      break;
+    case QMessageBox::Ignore:
+      updateImageChanged(false);
+      break;
+    default:
+      return false;
     }
   }
   if (m_viewer->imagePtr()) {
@@ -127,6 +134,8 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
     ui->actionAuto_Crop->setEnabled(true);
     ui->actionCopy_To_Clipboard->setEnabled(true);
     ui->actionCopy_path_to_Clipboard->setEnabled(true);
+    ui->actionCopy_to_Destination_folder->setEnabled(true);
+    ui->actionDestination_folder->setEnabled(true);
   }
   return true;
 }
@@ -145,7 +154,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 void MainWindow::on_actionOpenImage_triggered() {
   QString imageFile =
       QFileDialog::getOpenFileName(this, "Image", m_lastImgPath);
-  if (imageFile.isEmpty()) return;
+  if (imageFile.isEmpty())
+    return;
   loadImage(imageFile, true);
 }
 
@@ -184,7 +194,8 @@ void MainWindow::showInfo(const QString &msg) { statusBar()->showMessage(msg); }
 void MainWindow::on_actionSave_as_triggered() {
   QString imageFile =
       QFileDialog::getSaveFileName(this, "Save image", m_lastImgPath);
-  if (imageFile.isEmpty()) return;
+  if (imageFile.isEmpty())
+    return;
   m_viewer->imagePtr()->save(imageFile);
 }
 
@@ -283,48 +294,71 @@ void MainWindow::doCrop() {
   updateImageChanged(true);
 }
 
-void MainWindow::on_actionAbout_triggered()
-{
-    QMessageBox::aboutQt(this, "ImageViewer");
+void MainWindow::on_actionAbout_triggered() {
+  QMessageBox::aboutQt(this, "ImageViewer");
 }
 
-void MainWindow::on_actionAuto_Crop_triggered()
-{
-    if (m_viewer->imagePtr()){
+void MainWindow::on_actionAuto_Crop_triggered() {
+  if (m_viewer->imagePtr()) {
 
-        QImage *img = m_viewer->imagePtr();
-        QRect crop_rect1 = autoCropImage( *img, Qt::white);
-        QRect crop_rect2 = autoCropImage( *img);
+    QImage *img = m_viewer->imagePtr();
+    QRect crop_rect1 = autoCropImage(*img, Qt::white);
+    QRect crop_rect2 = autoCropImage(*img);
 
-        const QRect crop_rect = crop_rect1&crop_rect2;
+    const QRect crop_rect = crop_rect1 & crop_rect2;
 
-        *img = img->copy(crop_rect);
-        m_viewer->adjustAll();
-        m_cropWidget->hide();
-        updateImageChanged(true);
+    *img = img->copy(crop_rect);
+    m_viewer->adjustAll();
+    m_cropWidget->hide();
+    updateImageChanged(true);
+  }
+}
 
+void MainWindow::on_actionCopy_To_Clipboard_triggered() {
+  QClipboard *clipboard = QApplication::clipboard();
+  if (m_viewer->imagePtr()) {
+    QMimeData *data = new QMimeData;
+    const QImage image = *(m_viewer->imagePtr());
+    data->setImageData(image);
+    clipboard->setMimeData(data, QClipboard::Clipboard);
+  }
+}
+
+void MainWindow::on_actionCopy_path_to_Clipboard_triggered() {
+  QClipboard *clipboard = QApplication::clipboard();
+  if (m_viewer->imagePtr()) {
+    QMimeData *data = new QMimeData;
+    data->setText(m_imagesListModel.imagePath(m_currentImageIndex));
+    clipboard->setMimeData(data, QClipboard::Clipboard);
+  }
+}
+
+void MainWindow::on_actionDestination_folder_triggered() {
+  const QString folderPath = QFileDialog::getExistingDirectory(
+      this, "Destination folder", m_labelDestinationFolder->text());
+  if (folderPath.isEmpty())
+    return;
+  m_labelDestinationFolder->setText(folderPath);
+  m_saveImageCounter = 0;
+}
+
+void MainWindow::on_actionCopy_to_Destination_folder_triggered() {
+  if (m_viewer->imagePtr()) {
+    const QString srcFilePath =
+        m_imagesListModel.imagePath(m_currentImageIndex);
+    const QString fileName = m_imagesListModel.fileName(m_currentImageIndex);
+    const QString dstFilePath =
+        QDir(m_labelDestinationFolder->text()).filePath(fileName);
+
+    if (!QFileInfo::exists(dstFilePath)) {
+      //      (void)QtConcurrent::run([&](){QFile::copy(srcFilePath,
+      //      dstFilePath);});
+      bool ok = QFile::copy(srcFilePath, dstFilePath);
+      if (ok) {
+        m_saveImageCounter += 1;
+        m_LabelSaveImageCounter->setText(
+            QString(" -> Copied images: %1 ").arg(m_saveImageCounter));
+      }
     }
+  }
 }
-
-void MainWindow::on_actionCopy_To_Clipboard_triggered()
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    if (m_viewer->imagePtr()){
-        QMimeData *data = new QMimeData;
-        const QImage image = *(m_viewer->imagePtr());
-        data->setImageData(image);
-        clipboard->setMimeData(data, QClipboard::Clipboard);
-    }
-}
-
-
-void MainWindow::on_actionCopy_path_to_Clipboard_triggered()
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    if (m_viewer->imagePtr()){
-        QMimeData *data = new QMimeData;
-        data->setText( m_imagesListModel.imagePath( m_currentImageIndex ) );
-        clipboard->setMimeData(data, QClipboard::Clipboard);
-    }
-}
-

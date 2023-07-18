@@ -64,7 +64,7 @@
      <x>0</x>
      <y>0</y>
      <width>900</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -99,12 +99,8 @@
     <addaction name="actionAuto_Crop"/>
     <addaction name="actionCopy_To_Clipboard"/>
     <addaction name="actionCopy_path_to_Clipboard"/>
-   </widget>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-    <addaction name="actionAbout"/>
+    <addaction name="actionDestination_folder"/>
+    <addaction name="actionCopy_to_Destination_folder"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -293,6 +289,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionDestination_folder">
+   <property name="text">
+    <string>Destination folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Set destination folder</string>
+   </property>
+  </action>
+  <action name="actionCopy_to_Destination_folder">
+   <property name="text">
+    <string>Copy to destination folder</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
    </property>
   </action>
  </widget>
