@@ -293,7 +293,7 @@
   </action>
   <action name="actionDestination_folder">
    <property name="text">
-    <string>Destination folder</string>
+    <string>Set destination folder</string>
    </property>
    <property name="toolTip">
     <string>Set destination folder</string>
