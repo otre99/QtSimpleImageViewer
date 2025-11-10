@@ -77,7 +77,7 @@ MainWindow::~MainWindow() { delete ui; }
 bool MainWindow::loadImage(const QString &image_path, const bool reload) {
   if (m_imageWasModified) {
     QMessageBox::StandardButton ex = QMessageBox::warning(
-        this, "Unsaed changes", "Do you want to saved changes?",
+        this, "Unsaved changes", "Do you want to saved changes?",
         QMessageBox::StandardButtons({QMessageBox::Save, QMessageBox::Ignore}));
     switch (ex) {
       case QMessageBox::Save:
@@ -105,6 +105,7 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
       m_currentImageIndex =
           m_imagesListModel.indexOf(QFileInfo(image_path).fileName());
       on_actionScale100_triggered();
+      ui->listView->loadVisibleItem();
     }
     if (m_cropWidget->isVisible()) {
       on_actionCrop_triggered();

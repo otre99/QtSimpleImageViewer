@@ -12,7 +12,7 @@ class ImageListView : public QListView {
   virtual void resizeEvent(QResizeEvent *event) override final;
   void setModel(ImagesListModel *model);
 
- private slots:
+ public slots:
   void loadVisibleItem();
 
  private:

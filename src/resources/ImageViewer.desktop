@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=ImageViewer
+Exec=ImageViewer
+Icon=ImageViewer
+Categories=Graphics;
