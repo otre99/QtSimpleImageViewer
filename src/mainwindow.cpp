@@ -20,7 +20,7 @@
 
 namespace {
 const double kScaleFactorStep = 1.1;
-} // namespace
+}  // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -35,11 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
 
   connect(m_viewer, &ImageViewer::pixelTrack, this, &MainWindow::showPixel);
   ui->listView->setModel(&m_imagesListModel);
-
-  connect(ui->listView->horizontalScrollBar(), &QScrollBar::sliderPressed,
-          &m_imagesListModel, &ImagesListModel::activateSoftLoading);
-  connect(ui->listView->horizontalScrollBar(), &QScrollBar::sliderReleased,
-          this, &MainWindow::updateView);
 
   ui->statusBar->addPermanentWidget(new QLabel("Destination folder: "), 0);
   ui->statusBar->addPermanentWidget(m_labelDestinationFolder = new QLabel(""),
@@ -85,14 +80,14 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
         this, "Unsaed changes", "Do you want to saved changes?",
         QMessageBox::StandardButtons({QMessageBox::Save, QMessageBox::Ignore}));
     switch (ex) {
-    case QMessageBox::Save:
-      on_actionSave_triggered();
-      break;
-    case QMessageBox::Ignore:
-      updateImageChanged(false);
-      break;
-    default:
-      return false;
+      case QMessageBox::Save:
+        on_actionSave_triggered();
+        break;
+      case QMessageBox::Ignore:
+        updateImageChanged(false);
+        break;
+      default:
+        return false;
     }
   }
   if (m_viewer->imagePtr()) {
@@ -101,8 +96,9 @@ bool MainWindow::loadImage(const QString &image_path, const bool reload) {
   }
 
   QImageReader reader(image_path);
+  reader.setAutoTransform(true);
   if (reader.canRead()) {
-    m_viewer->attachImagePtr(new QImage(image_path));
+    m_viewer->attachImagePtr(new QImage(reader.read()));
     m_lastImgPath = image_path;
     if (reload) {
       m_imagesListModel.init(image_path);
@@ -154,8 +150,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
 void MainWindow::on_actionOpenImage_triggered() {
   QString imageFile =
       QFileDialog::getOpenFileName(this, "Image", m_lastImgPath);
-  if (imageFile.isEmpty())
-    return;
+  if (imageFile.isEmpty()) return;
   loadImage(imageFile, true);
 }
 
@@ -174,11 +169,6 @@ void MainWindow::on_listView_clicked(const QModelIndex &index) {
   }
 }
 
-void MainWindow::updateView() {
-  m_imagesListModel.deactivateSoftLoading();
-  ui->listView->reset();
-}
-
 void MainWindow::on_actionSave_triggered() {
   QString path = m_imagesListModel.imagePath(m_currentImageIndex);
   m_viewer->imagePtr()->save(path);
@@ -194,8 +184,7 @@ void MainWindow::showInfo(const QString &msg) { statusBar()->showMessage(msg); }
 void MainWindow::on_actionSave_as_triggered() {
   QString imageFile =
       QFileDialog::getSaveFileName(this, "Save image", m_lastImgPath);
-  if (imageFile.isEmpty())
-    return;
+  if (imageFile.isEmpty()) return;
   m_viewer->imagePtr()->save(imageFile);
 }
 
@@ -300,7 +289,6 @@ void MainWindow::on_actionAbout_triggered() {
 
 void MainWindow::on_actionAuto_Crop_triggered() {
   if (m_viewer->imagePtr()) {
-
     QImage *img = m_viewer->imagePtr();
     QRect crop_rect1 = autoCropImage(*img, Qt::white);
     QRect crop_rect2 = autoCropImage(*img);
@@ -336,8 +324,7 @@ void MainWindow::on_actionCopy_path_to_Clipboard_triggered() {
 void MainWindow::on_actionDestination_folder_triggered() {
   const QString folderPath = QFileDialog::getExistingDirectory(
       this, "Destination folder", m_labelDestinationFolder->text());
-  if (folderPath.isEmpty())
-    return;
+  if (folderPath.isEmpty()) return;
   m_labelDestinationFolder->setText(folderPath);
   m_saveImageCounter = 0;
 }

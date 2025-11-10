@@ -1,11 +1,13 @@
 #ifndef IMAGESLISTMODEL_H
 #define IMAGESLISTMODEL_H
-#include "asyncimageloader.h"
+
 #include <QAbstractListModel>
 #include <QCache>
 #include <QDir>
 #include <QObject>
 #include <QPixmap>
+
+class AsyncImageLoader;
 
 class ImagesListModel : public QAbstractListModel {
   Q_OBJECT
@@ -19,6 +21,8 @@ public:
   void refreshItem(int row);
   QString fileName(int row) const { return m_imageNames[row]; }
   int indexOf(const QString &imgPath) { return m_imageNames.indexOf(imgPath); };
+  bool needToBeLoaded(int row) const;
+  AsyncImageLoader *loader();
 
 signals:
   void loadImageRequest(const QString &, const QSize &, int) const;
@@ -34,7 +38,7 @@ private:
   QStringList m_imageNames;
   QDir m_imageFolder;
   QCache<int, QPixmap> m_pixmapCache;
-  AsyncImageLoader m_asyncImageLoader;
+  AsyncImageLoader *m_asyncImageLoader;
   QPixmap m_fakeImage;
   bool m_softLoading;
 };

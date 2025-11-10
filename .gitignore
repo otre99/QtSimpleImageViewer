@@ -12,3 +12,5 @@ AppImage/*
 debug/*
 /AppImage
 /src/SimpleQtImageViewer.pro.user
+/src/build/*
+/src/.qtcreator/*

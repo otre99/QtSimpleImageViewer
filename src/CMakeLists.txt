@@ -25,6 +25,7 @@ set(PROJECT_SOURCES
     cropwidget.cpp
     image_utils/image_utils.cpp
     image_utils/autocropborder.cpp
+    imagelistview.h imagelistview.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

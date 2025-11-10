@@ -27,7 +27,6 @@ private slots:
   void on_actionOpenImage_triggered();
   void showPixel(int i, int j, double scf);
   void on_listView_clicked(const QModelIndex &index);
-  void updateView();
   void on_actionSave_triggered();
   void showInfo(const QString &msg);
   void on_actionSave_as_triggered();
@@ -49,9 +48,7 @@ private slots:
   void on_actionAuto_Crop_triggered();
   void on_actionCopy_To_Clipboard_triggered();
   void on_actionCopy_path_to_Clipboard_triggered();
-
   void on_actionDestination_folder_triggered();
-
   void on_actionCopy_to_Destination_folder_triggered();
 
   private:

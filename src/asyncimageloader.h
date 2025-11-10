@@ -7,29 +7,32 @@
 #include <QStack>
 #include <QThread>
 #include <QWaitCondition>
-#include <tuple>
+#include <vector>
+
+using namespace std;
+class ImagesListModel;
 
 class AsyncImageLoader : public QThread {
   Q_OBJECT
-public:
+ public:
   ~AsyncImageLoader() override;
   explicit AsyncImageLoader(QObject *parent = nullptr);
   void run() override;
   void reset();
 
-signals:
+ signals:
   void imageLoaded(QPixmap *pixmap, int row);
 
-public slots:
-  void enqueue(const QString &path, const QSize &target_size, int row);
+ public slots:
+  void enqueue(vector<int> rows);
 
-private:
+ private:
   QMutex m_mutex;
   QWaitCondition m_waitCond;
-  QStack<std::tuple<QString, QSize, int>> m_pendingStack;
   void loadImage(const QString &path, const QSize &target_size, int row);
-  bool m_exit;
-  QSet<int> m_pendingKeys;
+  atomic_bool m_exit;
+  vector<int> m_pendingKeys;
+  ImagesListModel *m_imgModel;
 };
 
-#endif // ASYNCIMAGELOADER_H
+#endif  // ASYNCIMAGELOADER_H

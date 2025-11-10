@@ -5,39 +5,28 @@
 #include <QPixmap>
 #include <QThread>
 
+#include "imageslistmodel.h"
+
 const int kMaxAsyncCalls = 1024;
 
-AsyncImageLoader::AsyncImageLoader(QObject *parent) : QThread(parent) {}
+AsyncImageLoader::AsyncImageLoader(QObject *parent) : QThread(parent) {
+  m_imgModel = qobject_cast<ImagesListModel *>(parent);
+}
 
-void AsyncImageLoader::enqueue(const QString &path, const QSize &target_size,
-                               const int row) {
+void AsyncImageLoader::enqueue(vector<int> rows) {
   m_mutex.lock();
-  if (!m_pendingKeys.contains(row)) {
-    m_pendingKeys.insert(row);
-    m_pendingStack.push({path, target_size, row});
-
-    if (m_pendingStack.count() > kMaxAsyncCalls) {
-      int key = std::get<2>(m_pendingStack.first());
-      m_pendingKeys.remove(key);
-      m_pendingStack.removeFirst();
-    }
-    m_mutex.unlock();
-  } else {
-    m_mutex.unlock();
-    return;
-  }
+  m_pendingKeys = rows;
+  m_mutex.unlock();
   m_waitCond.wakeOne();
 }
 
 void AsyncImageLoader::reset() {
   if (isRunning()) {
     m_mutex.lock();
-    m_pendingStack.clear();
     m_pendingKeys.clear();
     m_mutex.unlock();
   } else {
     m_exit = false;
-    m_pendingStack.clear();
     m_pendingKeys.clear();
     start();
   }
@@ -51,11 +40,8 @@ AsyncImageLoader::~AsyncImageLoader() {
 
 void AsyncImageLoader::loadImage(const QString &path, const QSize &target_size,
                                  int row) {
-  m_mutex.lock();
-  m_pendingKeys.remove(row);
-  m_mutex.unlock();
-
   QImageReader reader(path);
+  reader.setAutoTransform(true);
   if (reader.canRead()) {
     double sw =
         static_cast<double>(target_size.width()) / reader.size().width();
@@ -78,21 +64,27 @@ void AsyncImageLoader::loadImage(const QString &path, const QSize &target_size,
 }
 
 void AsyncImageLoader::run() {
-  QString path;
-  QSize target_size;
   int row;
   for (;;) {
-    if (m_exit) {
-      break;
-    }
-    m_mutex.lock();
-    if (!m_pendingStack.empty()) {
-      std::tie(path, target_size, row) = m_pendingStack.pop();
+    if (m_exit) break;
+
+    for (;;) {
+      m_mutex.lock();
+      size_t n = m_pendingKeys.size();
+      if (n) {
+        row = m_pendingKeys[n - 1];
+        m_pendingKeys.pop_back();
+      }
       m_mutex.unlock();
+      if (m_exit || !n) break;
+
+      const QString path = m_imgModel->imagePath(row);
+      QSize target_size{160, 160};
       loadImage(path, target_size, row);
-    } else {
-      m_waitCond.wait(&m_mutex);
-      m_mutex.unlock();
     }
+
+    m_mutex.lock();
+    m_waitCond.wait(&m_mutex);
+    m_mutex.unlock();
   }
 }

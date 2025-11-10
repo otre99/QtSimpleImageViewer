@@ -210,8 +210,11 @@ void ImageViewer::queueGenerateCache() {
 
 void ImageViewer::generateCache() {
   // disable the one-shot timer
-  cacheTimer_->deleteLater();
-  cacheTimer_ = nullptr;
+
+  if (cacheTimer_) {
+    cacheTimer_->deleteLater();
+    cacheTimer_ = nullptr;
+  }
 
   if (!m_imagePtr)
     return;
