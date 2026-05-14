@@ -259,14 +259,14 @@ void MainWindow::on_actionRotate_R_triggered() {
 
 void MainWindow::on_actionFlip_H_triggered() {
   QImage *img = m_viewer->imagePtr();
-  *img = img->mirrored(true, false);
+  img->flip(Qt::Horizontal);
   m_viewer->adjustAll();
   updateImageChanged(true);
 }
 
 void MainWindow::on_actionFlip_V_triggered() {
   QImage *img = m_viewer->imagePtr();
-  *img = img->mirrored(false, true);
+  img->flip(Qt::Vertical);
   m_viewer->adjustAll();
   updateImageChanged(true);
 }
