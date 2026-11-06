@@ -56,7 +56,10 @@ void ImagesListModel::init(const QString &folder) {
   m_softLoading = false;
 }
 
-void ImagesListModel::refreshItem(int row) { m_pixmapCache.remove(row); }
+void ImagesListModel::refreshItem(int row) {
+    m_pixmapCache.remove(row);
+    m_asyncImageLoader->enqueue({row});
+}
 
 bool ImagesListModel::needToBeLoaded(int row) const {
   return !m_pixmapCache.contains(row);

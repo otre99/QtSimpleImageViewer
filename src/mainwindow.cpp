@@ -175,7 +175,7 @@ void MainWindow::on_actionSave_triggered() {
   m_viewer->imagePtr()->save(path);
 
   QModelIndex index = m_imagesListModel.index(m_currentImageIndex);
-  m_imagesListModel.refreshItem(m_currentImageIndex);
+  m_imagesListModel.refreshItem(m_currentImageIndex);  
   ui->listView->update(index);
   updateImageChanged(false);
 }
